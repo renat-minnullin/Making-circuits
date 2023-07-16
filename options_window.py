@@ -28,20 +28,11 @@ class Window(tk.Tk):
             main_window_width = combo_size_work_window_width.get()
             main_window_height = combo_size_work_window_height.get()
 
-            type_current = rbtn_current_types.get()  # 0 - постоянный, 1 - синусоидальный, 2 - несинусоидальный
-
             fout = open(NAME_FILE_OUTPUT, 'w')
             fout.write('Размеры рабочей области:\n')
             fout.write('Ширина: \n{0:1d}\n'.format(int(main_window_width)))
             fout.write('Высота: \n{0:1d}\n'.format(int(main_window_height)))
 
-            if type_current == 0:
-                fout.write('Постоянный ток\n')
-            elif type_current == 1:
-                fout.write('Синусоидальный ток\n')
-            else:
-                fout.write('Несинусоидальный ток\n')
-            fout.write('{0:d}\n'.format(type_current))
             print('Options saved')
             fout.close()
 
@@ -63,17 +54,8 @@ class Window(tk.Tk):
         combo_size_work_window_height.current(0)  # значение 500 по умолчанию для высоты
         combo_size_work_window_height.grid(row=1, column=2, stick='w')
 
-        rbtn_current_types = tk.IntVar()
-        tk.Radiobutton(self, text='Постоянный ток', variable=rbtn_current_types, value=0, font=style_lables).grid(row=2,
-                                                                                                                  column=0,
-                                                                                                                  stick='w')
-        tk.Radiobutton(self, text='Синусоидальный ток', variable=rbtn_current_types, value=1, font=style_lables).grid(
-            row=3, column=0, stick='w')
-        tk.Radiobutton(self, text='Несинусоидальный ток', variable=rbtn_current_types, value=2, font=style_lables).grid(
-            row=4, column=0, stick='w')
-
-        ttk.Button(self, text='Сохранить настройки', command=get_options_to_file).grid(row=9, column=0,
-                                                                                       columnspan=3)  # установлено row=9, как костыль на наибольший
+        ttk.Button(self, text='Сохранить настройки', command=get_options_to_file).grid(row=2, column=0,
+                                                                                       columnspan=3)
 
 
 if __name__ == "__main__":

@@ -40,6 +40,19 @@ class Clamp:
                                                  width=self.width_outline)
 
 
+def input_options_window(path_fin):
+    """Подпрограмма вводит размер окна и тип тока в цепи из файла с названием path_file_input"""
+    fin = open(path_fin, 'r')
+    fin.readline()
+    fin.readline()
+    width = int(fin.readline().split()[0])
+    fin.readline()
+    height = int(fin.readline().split()[0])
+
+    fin.close()
+    return width, height
+
+
 def make_main_window(width, height, location, title, path_icon):
     window = tk.Tk()
     window.title(title)
@@ -48,20 +61,6 @@ def make_main_window(width, height, location, title, path_icon):
     window.iconphoto(False, icon)
     window.resizable(False, True)
     return window
-
-
-def input_date(path_fin):
-    """Подпрограмма вводит размер окна и тип тока в цепи из файла с названием path_file_input"""
-    fin = open(path_fin, 'r')
-    fin.readline()
-    fin.readline()
-    width = int(fin.readline().split()[0])
-    fin.readline()
-    height = int(fin.readline().split()[0])
-    fin.readline()
-    type_current = int(fin.readline().split()[0])
-    fin.close()
-    return width, height, type_current
 
 
 def create_list_library_elements():
@@ -79,8 +78,8 @@ def create_list_library_elements():
     return names_of_groups, names_elements_of_groups
 
 
-def frame_info_making(type_current, width_frame, height_string, color_bg_frame, color_text):
-    def frame_info_circuit_making(main_frame, type_cur, width, height, col_bg_frame, col_text):
+def frame_info_making(width_frame, height_string, color_bg_frame, color_text):
+    def frame_info_circuit_making(main_frame, width, height, col_bg_frame, col_text):
         """Подпрограмма создает рамку слева в главном окне (СТОЛБЕЦ 0, РЯД 0). В ней будет записана информация о цепи:
         тип тока, количество узлов, количество ветвей и тд."""
 
@@ -118,23 +117,18 @@ def frame_info_making(type_current, width_frame, height_string, color_bg_frame, 
         btn_save_name = tk.Button(frame_info_circuit, text='Сохранить', command=get_save_name_file, fg=col_text)
         btn_save_name.grid(row=1, column=1, sticky='e')
 
-        lbl_type_current = tk.Label(frame_info_circuit, height=height,
-                                    text='Ток: ' + translater_type_current(type_cur),
-                                    bg=col_bg_frame, fg=col_text)
-        lbl_type_current.grid(row=2, column=0, sticky='w', columnspan=2)
-
         lbl_counter_nodes = tk.Label(frame_info_circuit, height=height,
                                      text='Количество узлов: ',
                                      bg=col_bg_frame, fg=col_text)
-        lbl_counter_nodes.grid(row=3, column=0, sticky='w', columnspan=2)
+        lbl_counter_nodes.grid(row=2, column=0, sticky='w', columnspan=2)
         lbl_counter_branches = tk.Label(frame_info_circuit, height=height,
                                         text='Количество ветвей: ',
                                         bg=col_bg_frame, fg=col_text)
-        lbl_counter_branches.grid(row=4, column=0, sticky='w', columnspan=2)
+        lbl_counter_branches.grid(row=3, column=0, sticky='w', columnspan=2)
 
         btn_run = tk.Button(frame_info_circuit, text='ПУСК', font='bold', fg=col_text,
                             bg='grey')
-        btn_run.grid(row=5, column=0, columnspan=2)
+        btn_run.grid(row=4, column=0, columnspan=2)
         return btn_run
 
     def frame_info_element_making(main_frame, width, height, col_bg_frame, col_text):
@@ -151,7 +145,7 @@ def frame_info_making(type_current, width_frame, height_string, color_bg_frame, 
 
     frame_info = tk.Frame(bg=color_bg_frame, width=width_frame)
     frame_info.grid(row=0, column=0, sticky='ns')
-    btn_run_circuit = frame_info_circuit_making(frame_info, type_current, width_frame, height_string,
+    btn_run_circuit = frame_info_circuit_making(frame_info, width_frame, height_string,
                                                 color_bg_frame, color_text)
     frame_info_element_making(frame_info, width_frame, height_string, color_bg_frame, color_text)
 
@@ -320,14 +314,8 @@ def workspace_making_and_building(window, list_names_of_groups_elements, list_el
     return clamps, workspace, number_clamp_rows, number_clamp_columns
 
 
-moving_wire_line = None
-flag_element_highlighted = False
-flag_moving_line_created = False
-flag_running = False
-
-path_file_input = 'date/options_date.txt'
-
-WIDTH_WINDOW, HEIGHT_WINDOW, TYPE_CURRENT = input_date(path_file_input)
+path_file_input = 'date/options_window.txt'
+WIDTH_WINDOW, HEIGHT_WINDOW = input_options_window(path_file_input)
 
 TITLE = 'Расчет цепей'
 LOCATION = '+10+150'
@@ -341,7 +329,7 @@ MAX_COUNT_SIMBOLS_LIST_NGE = ''
 
 WIDTH_INFO_FRAME = 40  # Количество символов в строке рамки информации
 HEIGHT_STRING_INFO_FRAME = 1
-BUTTON_RUN = frame_info_making(TYPE_CURRENT, WIDTH_INFO_FRAME, HEIGHT_STRING_INFO_FRAME, COLOR_BG_INFO_FRAME,
+BUTTON_RUN = frame_info_making(WIDTH_INFO_FRAME, HEIGHT_STRING_INFO_FRAME, COLOR_BG_INFO_FRAME,
                                COLOR_TEXT)
 
 WIDTH_LIBRARY = 200  # ПОКА ЧТО ВЫБРАНА НАУГАД

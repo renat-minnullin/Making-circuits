@@ -232,7 +232,7 @@ def binding_clamps_for_making_wires(canvas, clamps__, rows, columns, wires_):
 
                     def delete_clamps_connections(clmp_start, clmp_end):
                         """Подпрограмма удаляет связь между двумя зажимами, составляющими удаленный провод"""
-
+                        print(CLAMPS)
                         clmp_start.list_row_col_connected_clamps.remove([clmp_end.row, clmp_end.column])
                         clmp_start.number_connected_wires -= 1
 
