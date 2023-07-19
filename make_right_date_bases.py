@@ -306,4 +306,4 @@ flag_moving_line_created = False
 flag_running = False
 working_circuit(BUTTON_RUN, CLAMPS)
 
-root.mainloop() #Должен находится в самом конце последнего исполняемого файла
+root.mainloop()  # Должен находится в самом конце последнего исполняемого файла

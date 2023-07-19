@@ -239,7 +239,7 @@ def workspace_making_and_building(window, list_names_of_groups_elements, list_el
         clamps_ = making_clamps(workspace_, number_clamp_rows_, number_clamp_columns_, size_clamp_area, radius_clamp_,
                                 indent_, col_clamps_fill, col_clamps_outline, col_clamps_outline_pushed)
 
-        return clamps_, workspace_, number_clamp_rows_, number_clamp_columns_
+        return clamps_, workspace_
 
     def make_frame_elements_library(frame_wrksp, list_names_of_groups, list_elements_groups, width_library_,
                                     col_bg_info_frame):
@@ -298,20 +298,20 @@ def workspace_making_and_building(window, list_names_of_groups_elements, list_el
                             color_bg_info_frame, color_frame_outline, color_clamps_outline,
                             color_bg_workspace)
 
-    clamps, workspace, number_clamp_rows, number_clamp_columns = make_workspace_for_clamping(frame_workspace,
-                                                                                             width_workspace,
-                                                                                             height_workspace,
-                                                                                             radius_clamp, indent,
-                                                                                             color_bg_workspace,
-                                                                                             color_clamps_fill,
-                                                                                             color_clamps_outline,
-                                                                                             color_clamps_outline_pushed,
-                                                                                             color_frame_outline)
+    clamps, workspace = make_workspace_for_clamping(frame_workspace,
+                                                    width_workspace,
+                                                    height_workspace,
+                                                    radius_clamp, indent,
+                                                    color_bg_workspace,
+                                                    color_clamps_fill,
+                                                    color_clamps_outline,
+                                                    color_clamps_outline_pushed,
+                                                    color_frame_outline)
 
     make_frame_elements_library(frame_workspace, list_names_of_groups_elements, list_elements_by_groups,
                                 width_library, color_bg_info_frame)
 
-    return clamps, workspace, number_clamp_rows, number_clamp_columns
+    return clamps, workspace
 
 
 path_file_input = 'date/options_window.txt'
@@ -341,21 +341,21 @@ HEIGHT_QUICK_ACCESS = 2 * (INDENT + RADIUS_CLAMP)
 
 HEIGHT_WORKSPACE = HEIGHT_WINDOW - HEIGHT_QUICK_ACCESS - 3  # небольшой отступ от нижней стороны
 
-CLAMPS, WORKSPACE, NUMBER_CLAMP_ROWS, NUMBER_CLAMP_COLUMNS = workspace_making_and_building(root,
-                                                                                           LIST_NAMES_OF_GROUPS_ELEMENTS,
-                                                                                           LIST_ELEMENTS_BY_GROUPS,
-                                                                                           WIDTH_LIBRARY,
-                                                                                           WIDTH_WORKSPACE,
-                                                                                           HEIGHT_WORKSPACE,
-                                                                                           WIDTH_QUICK_ACCESS,
-                                                                                           HEIGHT_QUICK_ACCESS,
-                                                                                           RADIUS_CLAMP, INDENT,
-                                                                                           COLOR_TEXT,
-                                                                                           COLOR_BG_INFO_FRAME,
-                                                                                           COLOR_BG_WORKSPACE,
-                                                                                           COLOR_CLAMPS_FILL,
-                                                                                           COLOR_CLAMPS_OUTLINE,
-                                                                                           COLOR_CLAMPS_OUTLINE_PUSHED,
-                                                                                           COLOR_FRAME_OUTLINE,
-                                                                                           COLOR_HIGHLIGHT,
-                                                                                           COLOR_LINES)
+CLAMPS, WORKSPACE = workspace_making_and_building(root,
+                                                  LIST_NAMES_OF_GROUPS_ELEMENTS,
+                                                  LIST_ELEMENTS_BY_GROUPS,
+                                                  WIDTH_LIBRARY,
+                                                  WIDTH_WORKSPACE,
+                                                  HEIGHT_WORKSPACE,
+                                                  WIDTH_QUICK_ACCESS,
+                                                  HEIGHT_QUICK_ACCESS,
+                                                  RADIUS_CLAMP, INDENT,
+                                                  COLOR_TEXT,
+                                                  COLOR_BG_INFO_FRAME,
+                                                  COLOR_BG_WORKSPACE,
+                                                  COLOR_CLAMPS_FILL,
+                                                  COLOR_CLAMPS_OUTLINE,
+                                                  COLOR_CLAMPS_OUTLINE_PUSHED,
+                                                  COLOR_FRAME_OUTLINE,
+                                                  COLOR_HIGHLIGHT,
+                                                  COLOR_LINES)
