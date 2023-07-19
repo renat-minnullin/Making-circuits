@@ -41,6 +41,16 @@ def definer_angle_inclination(x_start, y_start, x_end, y_end):
     return gamma
 
 
+def draw_node(canvas, coord, radius_clamp, width_line, col_lines, col_fill):
+    x_main = coord[0]
+    y_main = coord[1]
+
+    elements = [canvas.create_oval((x_main - radius_clamp, y_main - radius_clamp),
+                                   (x_main + radius_clamp, y_main + radius_clamp), width=width_line, outline=col_lines,
+                                   fill=col_fill)]
+    return elements
+
+
 def draw_wire(canvas, coord_start, coord_end, width_line, col_lines):
     x_main_start = coord_start[0]
     y_main_start = coord_start[1]
@@ -50,6 +60,7 @@ def draw_wire(canvas, coord_start, coord_end, width_line, col_lines):
     elements = [
         canvas.create_line(x_main_start, y_main_start, x_main_end, y_main_end, width=width_line, fill=col_lines)]
     return elements
+
 
 def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col_lines):
     from math import sqrt, cos, sin, pi
@@ -149,6 +160,7 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     elements.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines))
     return elements
 
+
 def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, col_lines):
     from math import sqrt, cos, sin, pi
     x_main_start = coord_start[0]
@@ -233,6 +245,7 @@ def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, co
     elements.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines))
     return elements
 
+
 def draw_inductor_coil(canvas, coord_start, coord_end, normal_length, width_line, col_lines):
     from math import sqrt, cos, sin, degrees
 
@@ -291,6 +304,7 @@ def draw_inductor_coil(canvas, coord_start, coord_end, normal_length, width_line
     elements.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines))
     return elements
 
+
 def draw_source_of_emf(canvas, coord_start, coord_end, normal_length, width_line, col_lines):
     from math import sqrt, cos, sin
     x_main_start = coord_start[0]
@@ -348,6 +362,7 @@ def draw_source_of_emf(canvas, coord_start, coord_end, normal_length, width_line
     y_end = y_start - dy
     elements.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines))
     return elements
+
 
 def draw_current_source(canvas, coord_start, coord_end, normal_length, width_line, col_lines):
     from math import sqrt, cos, sin
@@ -421,6 +436,7 @@ def draw_current_source(canvas, coord_start, coord_end, normal_length, width_lin
     y_end = y_start - dy
     elements.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines))
     return elements
+
 
 def draw_break(canvas, coord_start, coord_end, normal_length, width_line):
     pass

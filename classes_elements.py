@@ -52,13 +52,14 @@ class Connection(Element):
 
 class Node(Element):
 
-    def __init__(self, clamp, col_lines):
+    def __init__(self, clamp, col_lines, col_fill):
         super().__init__()
         self.clamp = clamp
         self.row = clamp.row
         self.column = clamp.column
 
-        self.color_fill = col_lines
+        self.color_lines = col_lines
+        self.color_fill = col_fill
 
         self.potential = 0
 

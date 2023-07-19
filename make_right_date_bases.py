@@ -1,15 +1,5 @@
 from make_display import BUTTON_RUN, CLAMPS, root
-from paths_for_buffer_files import *
-
-
-class Node:
-    def __init__(self, clamp):
-        self.clamp = clamp
-        self.row = clamp.row
-        self.column = clamp.column
-
-    def __del__(self):
-        del self
+from classes_elements import Node
 
 
 def working_circuit(btn_run_circuit, clamps):
@@ -43,8 +33,7 @@ def working_circuit(btn_run_circuit, clamps):
                         row = int(coord[0])
                         column = int(coord[1])
                         massive_row_col[i] = [row, column]
-
-                global path_buffer_massive_clamped_clamps
+                from paths_for_buffer_files import path_buffer_massive_clamped_clamps
 
                 fin = open(path_buffer_massive_clamped_clamps, 'r')
                 massive_row_col_clamped_clamps = fin.readline().split()
@@ -88,6 +77,7 @@ def working_circuit(btn_run_circuit, clamps):
                 """Подпрограмма создает массив, содержащий двухячейные массивы с номером строки и столбца
                 зажима, являющегося узлом, причем в массиве все элементы будут упорядочены по возрастанию.
                 Также подпрограмма создает экземпляры класса Node"""
+                from options_visualization import COLOR_LINES, COLOR_NODE_FILL
                 massive_row_col_nodes = []
                 nodes_x = []
                 for coord in massive_row_col_clamped_clamps:
@@ -95,7 +85,7 @@ def working_circuit(btn_run_circuit, clamps):
                     col = coord[1]
                     if clamps[row][col].number_connected_wires >= 3:
                         massive_row_col_nodes.append([row, col])
-                        node = Node(clamps[row][col])
+                        node = Node(clamps[row][col], COLOR_LINES, COLOR_NODE_FILL)
                         nodes_x.append(node)
                 return massive_row_col_nodes, nodes_x
 

@@ -2,7 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from options_visualization import *
+from options_visualization import INDENT, RADIUS_CLAMP
 
 
 class Clamp:
@@ -78,8 +78,8 @@ def create_list_library_elements():
     return names_of_groups, names_elements_of_groups
 
 
-def frame_info_making(width_frame, height_string, color_bg_frame, color_text):
-    def frame_info_circuit_making(main_frame, width, height, col_bg_frame, col_text):
+def frame_info_making(width_frame, height_string):
+    def frame_info_circuit_making(main_frame, width, height, col_bg_info_frame, col_text):
         """Подпрограмма создает рамку слева в главном окне (СТОЛБЕЦ 0, РЯД 0). В ней будет записана информация о цепи:
         тип тока, количество узлов, количество ветвей и тд."""
 
@@ -102,12 +102,12 @@ def frame_info_making(width_frame, height_string, color_bg_frame, color_text):
                 str_type_current = 'несинусоидальный'
             return str_type_current
 
-        frame_info_circuit = tk.LabelFrame(main_frame, text='Параметры цепи', bg=col_bg_frame, fg=col_text)
+        frame_info_circuit = tk.LabelFrame(main_frame, text='Параметры цепи', bg=col_bg_info_frame, fg=col_text)
         frame_info_circuit.grid(column=0, row=0, stick='w', padx=5)
 
         lbl_name_file = tk.Label(frame_info_circuit, width=round(width / 3), height=height,  # подгонка
                                  text='Название файла:',
-                                 bg=col_bg_frame, fg=col_text)
+                                 bg=col_bg_info_frame, fg=col_text)
 
         lbl_name_file.grid(row=0, column=0, stick='w')
 
@@ -119,11 +119,11 @@ def frame_info_making(width_frame, height_string, color_bg_frame, color_text):
 
         lbl_counter_nodes = tk.Label(frame_info_circuit, height=height,
                                      text='Количество узлов: ',
-                                     bg=col_bg_frame, fg=col_text)
+                                     bg=col_bg_info_frame, fg=col_text)
         lbl_counter_nodes.grid(row=2, column=0, sticky='w', columnspan=2)
         lbl_counter_branches = tk.Label(frame_info_circuit, height=height,
                                         text='Количество ветвей: ',
-                                        bg=col_bg_frame, fg=col_text)
+                                        bg=col_bg_info_frame, fg=col_text)
         lbl_counter_branches.grid(row=3, column=0, sticky='w', columnspan=2)
 
         btn_run = tk.Button(frame_info_circuit, text='ПУСК', font='bold', fg=col_text,
@@ -131,34 +131,30 @@ def frame_info_making(width_frame, height_string, color_bg_frame, color_text):
         btn_run.grid(row=4, column=0, columnspan=2)
         return btn_run
 
-    def frame_info_element_making(main_frame, width, height, col_bg_frame, col_text):
+    def frame_info_element_making(main_frame, width, height, col_bg_info_frame, col_text):
         """Подпрограмма создает рамку под рамкой информации о цепи (СТОЛБЕЦ 0, РЯД 1), в которой будет появляться
         информация об элементе, на который в данный момент направлен курсор"""
 
-        frame_info_element = tk.LabelFrame(main_frame, text='Параметры элемента', bg=col_bg_frame, fg=col_text)
+        frame_info_element = tk.LabelFrame(main_frame, text='Параметры элемента', bg=col_bg_info_frame, fg=col_text)
         frame_info_element.grid(column=0, row=1, stick='w', padx=5)
         label_name_element = tk.Label(frame_info_element, width=width, height=height,
                                       text='Элемент: Resistor',
-                                      bg=col_bg_frame,
+                                      bg=col_bg_info_frame,
                                       fg=col_text)
         label_name_element.grid(row=0, column=0, stick='w', columnspan=2)
 
-    frame_info = tk.Frame(bg=color_bg_frame, width=width_frame)
+    from options_visualization import COLOR_BG_INFO_FRAME, COLOR_TEXT
+    frame_info = tk.Frame(bg=COLOR_BG_INFO_FRAME, width=width_frame)
     frame_info.grid(row=0, column=0, sticky='ns')
     btn_run_circuit = frame_info_circuit_making(frame_info, width_frame, height_string,
-                                                color_bg_frame, color_text)
-    frame_info_element_making(frame_info, width_frame, height_string, color_bg_frame, color_text)
+                                                COLOR_BG_INFO_FRAME, COLOR_TEXT)
+    frame_info_element_making(frame_info, width_frame, height_string, COLOR_BG_INFO_FRAME, COLOR_TEXT)
 
     return btn_run_circuit
 
 
 def workspace_making_and_building(window, list_names_of_groups_elements, list_elements_by_groups, width_library,
-                                  width_workspace, height_workspace, width_quick_access, height_quick_access,
-                                  radius_clamp, indent, color_text,
-                                  color_bg_info_frame, color_bg_workspace, color_clamps_fill,
-                                  color_clamps_outline, color_clamps_outline_pushed, color_frame_outline,
-                                  color_highlight,
-                                  color_lines):
+                                  width_workspace, height_workspace, width_quick_access, height_quick_access):
     """Подпрограмма для создания рамок: рабочей области зажимов, области быстрого доступа, области библиотеки элементов и запуска их"""
 
     def make_frame_quick_access(frame_wrksp, width_quick_access_, height_quick_access_, radius_clamp_, indent_,
@@ -290,26 +286,29 @@ def workspace_making_and_building(window, list_names_of_groups_elements, list_el
         selected_group(btns_elements_of_group, list_names_of_groups, list_elements_groups, width_library_)
 
     from math import floor
-
+    from options_visualization import RADIUS_CLAMP, INDENT
+    from options_visualization import COLOR_BG_INFO_FRAME, COLOR_BG_WORKSPACE, COLOR_CLAMPS_FILL, COLOR_CLAMPS_OUTLINE, \
+        COLOR_CLAMPS_OUTLINE_PUSHED, COLOR_FRAME_OUTLINE
     frame_workspace = tk.Frame(window)
     frame_workspace.grid(row=0, column=1, sticky='ns')
 
-    make_frame_quick_access(frame_workspace, width_quick_access, height_quick_access, radius_clamp, indent,
-                            color_bg_info_frame, color_frame_outline, color_clamps_outline,
-                            color_bg_workspace)
+    make_frame_quick_access(frame_workspace, width_quick_access, height_quick_access, RADIUS_CLAMP, INDENT,
+                            COLOR_BG_INFO_FRAME, COLOR_FRAME_OUTLINE, COLOR_CLAMPS_OUTLINE,
+                            COLOR_BG_WORKSPACE)
 
     clamps, workspace = make_workspace_for_clamping(frame_workspace,
                                                     width_workspace,
                                                     height_workspace,
-                                                    radius_clamp, indent,
-                                                    color_bg_workspace,
-                                                    color_clamps_fill,
-                                                    color_clamps_outline,
-                                                    color_clamps_outline_pushed,
-                                                    color_frame_outline)
+                                                    RADIUS_CLAMP,
+                                                    INDENT,
+                                                    COLOR_BG_WORKSPACE,
+                                                    COLOR_CLAMPS_FILL,
+                                                    COLOR_CLAMPS_OUTLINE,
+                                                    COLOR_CLAMPS_OUTLINE_PUSHED,
+                                                    COLOR_FRAME_OUTLINE)
 
     make_frame_elements_library(frame_workspace, list_names_of_groups_elements, list_elements_by_groups,
-                                width_library, color_bg_info_frame)
+                                width_library, COLOR_BG_INFO_FRAME)
 
     return clamps, workspace
 
@@ -329,8 +328,7 @@ MAX_COUNT_SIMBOLS_LIST_NGE = ''
 
 WIDTH_INFO_FRAME = 40  # Количество символов в строке рамки информации
 HEIGHT_STRING_INFO_FRAME = 1
-BUTTON_RUN = frame_info_making(WIDTH_INFO_FRAME, HEIGHT_STRING_INFO_FRAME, COLOR_BG_INFO_FRAME,
-                               COLOR_TEXT)
+BUTTON_RUN = frame_info_making(WIDTH_INFO_FRAME, HEIGHT_STRING_INFO_FRAME)
 
 WIDTH_LIBRARY = 200  # ПОКА ЧТО ВЫБРАНА НАУГАД
 HEIGHT_LIBRARY = HEIGHT_WINDOW
@@ -348,14 +346,4 @@ CLAMPS, WORKSPACE = workspace_making_and_building(root,
                                                   WIDTH_WORKSPACE,
                                                   HEIGHT_WORKSPACE,
                                                   WIDTH_QUICK_ACCESS,
-                                                  HEIGHT_QUICK_ACCESS,
-                                                  RADIUS_CLAMP, INDENT,
-                                                  COLOR_TEXT,
-                                                  COLOR_BG_INFO_FRAME,
-                                                  COLOR_BG_WORKSPACE,
-                                                  COLOR_CLAMPS_FILL,
-                                                  COLOR_CLAMPS_OUTLINE,
-                                                  COLOR_CLAMPS_OUTLINE_PUSHED,
-                                                  COLOR_FRAME_OUTLINE,
-                                                  COLOR_HIGHLIGHT,
-                                                  COLOR_LINES)
+                                                  HEIGHT_QUICK_ACCESS)

@@ -35,8 +35,8 @@ class Wire:
 def binding_clamps_for_making_wires(canvas, wires, clamps):
     """Подпрограмма запускает метод биндинга для рисования проводов"""
 
-    def bind_one_clamp_for_making_wires(clamp):
-        def press_left_btn_mouse_on_clamp(event_press_clamp):
+    def bind_one_clamp_for_making_wires(clicked_clamp):
+        def click_left_btn_mouse_on_clamp(event_press_clamp):
             """Подпрограмма события нажатия на зажим"""
 
             def input_clamps_r_c_acceptable_highlighting():
@@ -57,49 +57,19 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
                 return clamps_r_c_acceptable_highlighting
 
-            def output_clamps_r_c_acceptable_highlighting(clamps_r_c_acceptable_highlighting):
-                """Подпрограмма выводит в файл массив координат подсвеченных(доступных для нажатия) зажимов"""
-                from paths_for_buffer_files import path_buffer_row_col_acceptable_clamps
-                fout = open(path_buffer_row_col_acceptable_clamps, 'w')
-                for coord in clamps_r_c_acceptable_highlighting:
-                    r_x = coord[0]
-                    c_x = coord[1]
-                    fout.write(str(r_x) + '-' + str(c_x) + ' ')
-                fout.close()
-
-            def make_acceptable_clamp_highlighting(clamp_):
-                """Подпрограмма создает подсвеченные круги зажимов, а также массив с их координатами"""
-                from options_visualization import COLOR_HIGHLIGHT
-
-                clamps_row_col_acceptable_highlighting = []
-
-                for i in range(3):
-                    for j in range(3):
-                        r = clamp_.row + i - 1
-                        c = clamp_.column + j - 1
-                        if not (r == clamp_.row and c == clamp_.column) \
-                                and 0 <= r < len(clamps) \
-                                and 0 <= c < len(clamps[0]) \
-                                and [clamp_.row, clamp_.column] not in clamps[r][
-                            c].list_row_col_connected_clamps:
-                            canvas.itemconfig(clamps[r][c].figure_id, outline=COLOR_HIGHLIGHT)
-                            clamps_row_col_acceptable_highlighting.append([r, c])
-
-                output_clamps_r_c_acceptable_highlighting(clamps_row_col_acceptable_highlighting)
-
             def delete_acceptable_clamps():
                 """Подпрограмма удаляет созданные подсвеченные круги зажимов"""
                 clamps_row_col_acceptable_highlighting = input_clamps_r_c_acceptable_highlighting()
                 for coord in clamps_row_col_acceptable_highlighting:
                     r = coord[0]
                     c = coord[1]
-                    canvas.itemconfig(clamps[r][c].figure_id, outline=clamp.color_outline)
+                    canvas.itemconfig(clamps[r][c].figure_id, outline=clicked_clamp.color_outline)
 
-            def flag_acceptable_clamp(clamp_, start_r, start_c):
+            def flag_acceptable_clamp(clicked_clamp_, start_r, start_c):
                 """Подпрограмма проверяет прожатый зажим на возможность нажатия"""
                 clamps_row_col_acceptable_highlighting = input_clamps_r_c_acceptable_highlighting()
-                fl_accept_clamp = [clamp_.row, clamp_.column] in clamps_row_col_acceptable_highlighting
-                fl_not_repeat_wire = [clamp_.row, clamp_.column] not in clamps[start_r][
+                fl_accept_clamp = [clicked_clamp_.row, clicked_clamp_.column] in clamps_row_col_acceptable_highlighting
+                fl_not_repeat_wire = [clicked_clamp_.row, clicked_clamp_.column] not in clamps[start_r][
                     start_c].list_row_col_connected_clamps
 
                 if fl_accept_clamp and fl_not_repeat_wire:
@@ -132,29 +102,12 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                 fout.write(str(moving_line))
                 fout.close()
 
-            def output_r_c_start_clamp(clamp_):
+            def output_r_c_start_clamp(clicked_clamp_):
                 """Подпрограмма выводит в файл координаты начального зажима (row, col)"""
                 from paths_for_buffer_files import path_buffer_row_col_start_clamp
                 fout = open(path_buffer_row_col_start_clamp, 'w')
-                fout.write(str(clamp_.row) + ' ' + str(clamp_.column) + '\n')
+                fout.write(str(clicked_clamp_.row) + ' ' + str(clicked_clamp_.column) + '\n')
                 fout.close()
-
-            def moving_mouse_with_line(event_moving_mouse):
-                """Подпрограмма поддерживает движение линии за курсором мыши"""
-                mov_wire_line = input_id_moving_line()
-                canvas.delete(mov_wire_line)
-
-                if event_moving_mouse.x < clamp.x_center_circle and event_moving_mouse.y < clamp.y_center_circle:
-                    mouse_indent_x = event_moving_mouse.x + 3
-                    mouse_indent_y = event_moving_mouse.y + 3
-                else:
-                    mouse_indent_x = event_moving_mouse.x - 3
-                    mouse_indent_y = event_moving_mouse.y - 3
-
-                mov_wire_line = canvas.create_line(clamp.x_center_circle, clamp.y_center_circle,
-                                                   mouse_indent_x, mouse_indent_y, width=1)
-                output_id_moving_line(mov_wire_line)
-                output_r_c_start_clamp(clamp)
 
             def delete_moving_line(event):
                 """Подпрограмма останавливает рисование провода и удаляет линию"""
@@ -166,7 +119,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                 canvas.unbind('<Motion>')
                 root.unbind('<Escape>')
                 moving_wire_line = None
-                canvas.itemconfig(clamp.figure_id, outline=clamp.color_outline)
+                canvas.itemconfig(clicked_clamp.figure_id, outline=clicked_clamp.color_outline)
                 delete_acceptable_clamps()
                 flag_moving_line_created = False
 
@@ -203,19 +156,68 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
                 output_massive_clamped_clamps(sort_massive_clamped_clamps)
 
-            def init_moving_line(canvas___, clamp_start_, x_mouse, y_mouse):
+            def init_moving_line(clamp_start_, x_mouse, y_mouse):
                 """Подпрограмма инициализирует движущую линию"""
+
+                def make_acceptable_clamp_highlighting(clamp_):
+                    """Подпрограмма создает подсвеченные круги зажимов, а также массив с их координатами"""
+
+                    def output_clamps_r_c_acceptable_highlighting(clamps_r_c_acceptable_highlighting):
+                        """Подпрограмма выводит в файл массив координат подсвеченных(доступных для нажатия) зажимов"""
+                        from paths_for_buffer_files import path_buffer_row_col_acceptable_clamps
+                        fout = open(path_buffer_row_col_acceptable_clamps, 'w')
+                        for coord in clamps_r_c_acceptable_highlighting:
+                            r_x = coord[0]
+                            c_x = coord[1]
+                            fout.write(str(r_x) + '-' + str(c_x) + ' ')
+                        fout.close()
+
+                    from options_visualization import COLOR_HIGHLIGHT
+
+                    clamps_row_col_acceptable_highlighting = []
+
+                    for i in range(3):
+                        for j in range(3):
+                            r = clamp_.row + i - 1
+                            c = clamp_.column + j - 1
+                            if not (r == clamp_.row and c == clamp_.column) \
+                                    and 0 <= r < len(clamps) \
+                                    and 0 <= c < len(clamps[0]) \
+                                    and [clamp_.row, clamp_.column] not in clamps[r][
+                                c].list_row_col_connected_clamps:
+                                canvas.itemconfig(clamps[r][c].figure_id, outline=COLOR_HIGHLIGHT)
+                                clamps_row_col_acceptable_highlighting.append([r, c])
+
+                    output_clamps_r_c_acceptable_highlighting(clamps_row_col_acceptable_highlighting)
+
+                def moving_line_with_mouse(event_moving_mouse):
+                    """Подпрограмма поддерживает движение линии за курсором мыши"""
+                    mov_wire_line = input_id_moving_line()
+                    canvas.delete(mov_wire_line)
+
+                    if event_moving_mouse.x < clicked_clamp.x_center_circle and event_moving_mouse.y < clicked_clamp.y_center_circle:
+                        mouse_indent_x = event_moving_mouse.x + 3
+                        mouse_indent_y = event_moving_mouse.y + 3
+                    else:
+                        mouse_indent_x = event_moving_mouse.x - 3
+                        mouse_indent_y = event_moving_mouse.y - 3
+
+                    mov_wire_line = canvas.create_line(clicked_clamp.x_center_circle, clicked_clamp.y_center_circle,
+                                                       mouse_indent_x, mouse_indent_y, width=1)
+                    output_id_moving_line(mov_wire_line)
+                    output_r_c_start_clamp(clicked_clamp)
+
                 from make_display import root
                 global moving_wire_line, flag_moving_line_created
                 flag_moving_line_created = True
                 make_acceptable_clamp_highlighting(clamp_start_)
-                moving_wire_line = canvas___.create_line(clamp_start_.x_center_circle,
-                                                         clamp_start_.y_center_circle,
-                                                         x_mouse, y_mouse, width=1)
+                moving_wire_line = canvas.create_line(clamp_start_.x_center_circle,
+                                                      clamp_start_.y_center_circle,
+                                                      x_mouse, y_mouse, width=1)
                 output_id_moving_line(moving_wire_line)
                 output_r_c_start_clamp(clamp_start_)
 
-                canvas___.bind('<Motion>', moving_mouse_with_line)
+                canvas.bind('<Motion>', moving_line_with_mouse)
                 root.bind('<Escape>', delete_moving_line)
 
             def init_wire(clamp_start_, clamp_end_):
@@ -336,12 +338,12 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
             global moving_wire_line
 
             if moving_wire_line is None:
-                init_moving_line(canvas, clamp, event_press_clamp.x, event_press_clamp.y)
+                init_moving_line(clicked_clamp, event_press_clamp.x, event_press_clamp.y)
             else:
                 moving_wire_line = input_id_moving_line()
                 start_clamp_row, start_clamp_column = input_r_c_start_clamp()
                 clamp_start = clamps[start_clamp_row][start_clamp_column]
-                clamp_end = clamp
+                clamp_end = clicked_clamp
 
                 if flag_acceptable_clamp(clamp_end, start_clamp_row, start_clamp_column):
                     clamp_end.list_row_col_connected_clamps.append([clamp_start.row, clamp_start.column])
@@ -355,9 +357,9 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
                     init_wire(clamp_start, clamp_end)
 
-                    init_moving_line(canvas, clamp_end, event_press_clamp.x, event_press_clamp.y)
+                    init_moving_line(clamp_end, event_press_clamp.x, event_press_clamp.y)
 
-        canvas.tag_bind(clamp.figure_id, '<Button-1>', press_left_btn_mouse_on_clamp)
+        canvas.tag_bind(clicked_clamp.figure_id, '<Button-1>', click_left_btn_mouse_on_clamp)
 
     for row in range(len(clamps)):
         for col in range(len(clamps[0])):
