@@ -128,12 +128,25 @@ def working_circuit(btn_run_circuit, clamps):
                  в массиве list_massive_row_column_branch_clamps[i] для каждого провода является узлом, а все между -
                  зажимами с одиночной связью"""
 
+                def create_buffer_massive_all_list_row_col_connected_clamps():
+                    """Подпрограмма создает массив, в котором хранятся все массивы по каждому зажиму в соответствующем индексе
+                    для того, чтобы не удалять параметры зажимов"""
+                    buffer_massive_all_list_r_c_connected_clamps = []
+                    for row in range(len(clamps)):
+                        buffer_massive_all_list_r_c_connected_clamps.append([])
+                        for col in range(len(clamps[0])):
+                            buffer_massive_all_list_r_c_connected_clamps[row].append([])
+                            for connected_clamps in clamps[row][col].list_row_col_connected_clamps:
+                                buffer_massive_all_list_r_c_connected_clamps[row][col].append(connected_clamps)
+                    return buffer_massive_all_list_r_c_connected_clamps
+
                 def bypassing_single_branch(coord, list_massive_row_col_branch_clamps):
                     """Подпрограмма запускает рекурсивный алгоритм для обхода ветви.
                     Отрабатывается только для случая с одной ветвью и без узлов"""
                     if coord not in list_massive_row_col_branch_clamps[0]:
                         list_massive_row_col_branch_clamps[0].append(coord)
-                        list_r_c_connected_clamps = clamps[coord[0]][coord[1]].list_row_col_connected_clamps
+                        list_r_c_connected_clamps = buffer_massive_all_list_row_col_connected_clamps[coord[0]][coord[1]]
+
                         if list_r_c_connected_clamps[0] in list_massive_row_col_branch_clamps[0]:
                             new_coord = list_r_c_connected_clamps[1]
                         else:
@@ -161,13 +174,13 @@ def working_circuit(btn_run_circuit, clamps):
                         """Подпрограмма обработки выбора следующего зажима в цепи"""
                         fl_not_clamp_at_list_branch = list_r_c_con_cl[0] not in list_r_c_brch_cl
                         fl_ending_at_start_node = len(list_r_c_brch_cl) > 2 and list_r_c_con_cl[0] == \
-                                                  list_r_c_brch_cl[
-                                                      0]
+                                                  list_r_c_brch_cl[0]
                         return fl_not_clamp_at_list_branch or fl_ending_at_start_node
 
                     if fl_coord_need_check(coord, list_massive_row_col_branch_clamps[idx_brch]):
                         list_massive_row_col_branch_clamps[idx_brch].append(coord)
-                        list_r_c_connected_clamps = clamps[coord[0]][coord[1]].list_row_col_connected_clamps
+                        list_r_c_connected_clamps = buffer_massive_all_list_row_col_connected_clamps[coord[0]][coord[1]]
+
                         if fl_branch_end(coord, massive_r_c_nodes, list_massive_row_col_branch_clamps[idx_brch]):
                             print('Ветвь №{0:2d} определена'.format(idx_brch))
                         else:
@@ -182,6 +195,7 @@ def working_circuit(btn_run_circuit, clamps):
                             bypassing_branch(new_coord, list_massive_row_col_branch_clamps, massive_r_c_nodes,
                                              idx_brch)
 
+                buffer_massive_all_list_row_col_connected_clamps = create_buffer_massive_all_list_row_col_connected_clamps()
                 list_massive_row_column_branch_clamps = []
 
                 if len(massive_row_col_nodes) == 0:
@@ -192,7 +206,7 @@ def working_circuit(btn_run_circuit, clamps):
                     buffer_massive_row_col_nodes = massive_row_col_nodes.copy()
 
                     index_branch = 0
-                    while buffer_massive_row_col_nodes:
+                    while len(buffer_massive_row_col_nodes) != 0:
                         list_massive_row_column_branch_clamps.append([])
 
                         start_coord_node = buffer_massive_row_col_nodes[0]
@@ -202,17 +216,20 @@ def working_circuit(btn_run_circuit, clamps):
                         end_coord_node = list_massive_row_column_branch_clamps[index_branch][-1]
 
                         coord_first_clamp_after_start_node = list_massive_row_column_branch_clamps[index_branch][1]
-                        clamps[start_coord_node[0]][start_coord_node[1]].list_row_col_connected_clamps.remove(
+                        buffer_massive_all_list_row_col_connected_clamps[start_coord_node[0]][
+                            start_coord_node[1]].remove(
                             coord_first_clamp_after_start_node)
 
-                        if not clamps[start_coord_node[0]][start_coord_node[1]].list_row_col_connected_clamps:
+                        if len(buffer_massive_all_list_row_col_connected_clamps[start_coord_node[0]][
+                                   start_coord_node[1]]) == 0:
                             buffer_massive_row_col_nodes.remove(start_coord_node)
 
                         coord_last_clamp_before_end_node = list_massive_row_column_branch_clamps[index_branch][-2]
-                        clamps[end_coord_node[0]][end_coord_node[1]].list_row_col_connected_clamps.remove(
-                            coord_last_clamp_before_end_node)
+                        buffer_massive_all_list_row_col_connected_clamps[end_coord_node[0]][
+                            end_coord_node[1]].remove(coord_last_clamp_before_end_node)
 
-                        if not clamps[end_coord_node[0]][end_coord_node[1]].list_row_col_connected_clamps:
+                        if len(buffer_massive_all_list_row_col_connected_clamps[end_coord_node[0]][
+                                   end_coord_node[1]]) == 0:
                             buffer_massive_row_col_nodes.remove(end_coord_node)
 
                         index_branch += 1
@@ -251,8 +268,7 @@ def working_circuit(btn_run_circuit, clamps):
                                     txt_err = 'Ошибка! Зажима номер {0:2d} в ветви {1:2d} нет в списке промежуточных точек massive_row_column_no_nodes'.format(
                                         index_clamp, index_branch)
                             else:
-                                if massive_row_col_in_branches[index_branch][
-                                    index_clamp] not in massive_row_col_nodes:
+                                if massive_row_col_in_branches[index_branch][index_clamp] not in massive_row_col_nodes:
                                     fl_err = True
                                     txt_err = 'Ошибка! Последнего зажима в ветви {0:2d} нет в списке узлов massive_row_column_nodes'.format(
                                         index_branch)
