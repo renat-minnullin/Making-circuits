@@ -249,20 +249,29 @@ def workspace_making_and_building(window, list_names_of_groups_elements, list_el
             def making_buttons_element_of_selected_group(index_group, btns, list_elements_groups_xx, width_libr_xx):
                 """Подпрограмма создает кнопки с привязкой к элементам определенной группы"""
 
-                def click_on_button_element(idx_group, idx_element):
-                    from make_circuit_by_user import binding_btns_of_group
-                    binding_btns_of_group(idx_group, idx_element)
+                def bind_one_btn(index_group_, index_element_in_list_):
+                    """Подпрограмма не несет явного смысла, однако она позволяет переводить index_element_in_list в
+                    область локальную, из-за чего в файл make_circuit_by_user переносится реальный индекс, а не последний"""
+
+                    def click_on_button_element(idx_group, idx_element):
+                        from make_circuit_by_user import binding_btns_of_group
+                        binding_btns_of_group(idx_group, idx_element)
+
+                    btns[index_element_in_list_] = tk.Button(frame_library_elements,
+                                                             text=list_elements_groups_xx[index_group_][
+                                                                 index_element_in_list_],
+                                                             width=width_libr_xx // 10,
+                                                             command=lambda: click_on_button_element(index_group_,
+                                                                                                     index_element_in_list_))
 
                 count_element_in_group = len(list_elements_groups_xx[index_group])
-                for index_element in range(count_element_in_group):
+                for index_element_in_list in range(count_element_in_group):
                     btns.append([''])
+                for index_element_in_list in range(count_element_in_group):
+                    bind_one_btn(index_group, index_element_in_list)
 
-                for index_element in range(count_element_in_group):
-                    btns[index_element] = tk.Button(frame_library_elements,
-                                                    text=list_elements_groups_xx[index_group][index_element],
-                                                    width=width_libr_xx // 10,
-                                                    command=lambda: click_on_button_element(index_group, index_element))
-                    btns[index_element].grid(row=index_element + 1, column=0)  # +1 необходим, чтобы пропустить combobox
+                    btns[index_element_in_list].grid(row=index_element_in_list + 1,
+                                                     column=0)  # +1 необходим, чтобы пропустить combobox
 
             def delete_old_btns(btns):
                 """Подпрограмма удаляет прошлые кнопки и обнуляет массив"""
