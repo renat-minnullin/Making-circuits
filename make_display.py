@@ -2,12 +2,10 @@
 import tkinter as tk
 from tkinter import ttk
 
-from options_visualization import INDENT, RADIUS_CLAMP
-
 
 class Clamp:
     def __init__(self, canvas, x, y, radius, indent, color_fill, color_outline, color_outline_pushed, row, column):
-        self.figure_id = None
+        self.figure_id = -1
         self.canvas = canvas
         self.x_left_up_shell = x
         self.y_left_up_shell = y
@@ -31,13 +29,15 @@ class Clamp:
         self.number_connected_wires = 0
         self.list_row_col_connected_clamps = []
 
-    def make_circle(self):
+        self.elements_ids = []
+
+    def draw(self):
         """Метод создает круг с отступами"""
-        self.figure_id = self.canvas.create_oval((self.x_left_up_circle, self.y_left_up_circle),
-                                                 (self.x_right_down_circle, self.y_right_down_circle),
-                                                 fill=self.color_fill,
-                                                 outline=self.color_outline,
-                                                 width=self.width_outline)
+        self.elements_ids = [self.canvas.create_oval((self.x_left_up_circle, self.y_left_up_circle),
+                                                     (self.x_right_down_circle, self.y_right_down_circle),
+                                                     fill=self.color_fill,
+                                                     outline=self.color_outline,
+                                                     width=self.width_outline)]
 
 
 def input_options_window(path_fin):
@@ -216,19 +216,21 @@ def workspace_making_and_building(window, list_names_of_groups_elements, list_el
         def making_clamps(canvas, rows, columns, size_area, rad_clamp, ind, col_fill, col_outline,
                           col_outline_pushed):
             """Подпрограмма создает зажимное поле, на котором будут располагаться провода и элементы"""
-            clamps_ = [[0] * columns for _ in range(rows)]
+            clamps_x = [[0] * columns for _ in range(rows)]
             for row in range(rows):
                 for col in range(columns):
-                    clamps_[row][col] = Clamp(canvas, col * size_area, row * size_area, rad_clamp, ind,
-                                              col_fill, col_outline, col_outline_pushed, row, col)
-                    clamps_[row][col].make_circle()
-            return clamps_
+                    clamps_x[row][col] = Clamp(canvas, col * size_area, row * size_area, rad_clamp, ind,
+                                               col_fill, col_outline, col_outline_pushed, row, col)
+                    clamps_x[row][col].draw()
+            return clamps_x
+
+        from options_visualization import NORMAL_LENGTH
 
         workspace_ = tk.Canvas(frame_wrksp, bg=col_bg_workspace, width=width_workspace_, height=height_workspace_,
                                highlightthickness=1, highlightbackground=col_frame_outline)
         workspace_.grid(row=1, column=0, sticky='ns')
 
-        size_clamp_area = indent_ * 2 + radius_clamp_ * 2
+        size_clamp_area = NORMAL_LENGTH
         number_clamp_rows_ = floor(height_workspace_ / size_clamp_area)
         number_clamp_columns_ = floor(width_workspace_ / size_clamp_area)
 
@@ -247,15 +249,20 @@ def workspace_making_and_building(window, list_names_of_groups_elements, list_el
             def making_buttons_element_of_selected_group(index_group, btns, list_elements_groups_xx, width_libr_xx):
                 """Подпрограмма создает кнопки с привязкой к элементам определенной группы"""
 
+                def click_on_button_element(idx_group, idx_element):
+                    from make_circuit_by_user import binding_btns_of_group
+                    binding_btns_of_group(idx_group, idx_element)
+
                 count_element_in_group = len(list_elements_groups_xx[index_group])
-                for i in range(count_element_in_group):
+                for index_element in range(count_element_in_group):
                     btns.append([''])
 
-                for i in range(count_element_in_group):
-                    btns[i] = tk.Button(frame_library_elements,
-                                        text=list_elements_groups_xx[index_group][i],
-                                        width=width_libr_xx // 10)
-                    btns[i].grid(row=i + 1, column=0)  # +1 необходим, чтобы пропустить combobox
+                for index_element in range(count_element_in_group):
+                    btns[index_element] = tk.Button(frame_library_elements,
+                                                    text=list_elements_groups_xx[index_group][index_element],
+                                                    width=width_libr_xx // 10,
+                                                    command=lambda: click_on_button_element(index_group, index_element))
+                    btns[index_element].grid(row=index_element + 1, column=0)  # +1 необходим, чтобы пропустить combobox
 
             def delete_old_btns(btns):
                 """Подпрограмма удаляет прошлые кнопки и обнуляет массив"""
@@ -313,6 +320,8 @@ def workspace_making_and_building(window, list_names_of_groups_elements, list_el
     return clamps, workspace
 
 
+from options_visualization import NORMAL_LENGTH
+
 path_file_input = 'date/options_window.txt'
 WIDTH_WINDOW, HEIGHT_WINDOW = input_options_window(path_file_input)
 
@@ -335,7 +344,7 @@ HEIGHT_LIBRARY = HEIGHT_WINDOW
 WIDTH_WORKSPACE = WIDTH_WINDOW - WIDTH_LIBRARY - WIDTH_INFO_FRAME * 7.65  # подгонка для левого края и перевод с символов в длину
 
 WIDTH_QUICK_ACCESS = WIDTH_WORKSPACE
-HEIGHT_QUICK_ACCESS = 2 * (INDENT + RADIUS_CLAMP)
+HEIGHT_QUICK_ACCESS = NORMAL_LENGTH
 
 HEIGHT_WORKSPACE = HEIGHT_WINDOW - HEIGHT_QUICK_ACCESS - 3  # небольшой отступ от нижней стороны
 
@@ -346,4 +355,5 @@ CLAMPS, WORKSPACE = workspace_making_and_building(root,
                                                   WIDTH_WORKSPACE,
                                                   HEIGHT_WORKSPACE,
                                                   WIDTH_QUICK_ACCESS,
-                                                  HEIGHT_QUICK_ACCESS)
+                                                  HEIGHT_QUICK_ACCESS,
+                                                  )

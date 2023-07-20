@@ -1,13 +1,11 @@
 class Element:
-    def __init__(self):
-        pass
-
     def __del__(self):
         del self
 
 
 class Wire(Element):
-    def __init__(self, canvas, x_start, y_start, x_end, y_end, clamp_start, clamp_end, width, col_highlight, col_lines):
+    def __init__(self, canvas, x_start, y_start, x_end, y_end, clamp_start, clamp_end, width_lines, col_highlight,
+                 col_lines):
         super().__init__()
         self.canvas = canvas
         self.x_start = x_start
@@ -15,8 +13,8 @@ class Wire(Element):
         self.x_end = x_end
         self.y_end = y_end
 
-        self.width = width
-        self.color_fill = col_lines
+        self.width_lines = width_lines
+        self.color_lines = col_lines
         self.color_pressed = col_highlight
 
         self.clamp_start = clamp_start
@@ -27,13 +25,15 @@ class Wire(Element):
 
         self.flag_highlighted_now = False
 
-        self.elements = []
+        self.elements_ids = []
 
         self.current_strength = 0
 
-    def make_wire(self):
+    def draw(self):
         from drawing_elements import draw_wire
-        self.elements = draw_wire(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end], self.width, self.color_fill)
+        self.elements_ids = draw_wire(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
+                                      self.width_lines,
+                                      self.color_lines)
 
 
 class Connection(Element):
@@ -45,96 +45,218 @@ class Connection(Element):
         self.row = clamp.row
         self.column = clamp.column
 
-        self.color_fill = col_lines
+        self.color_lines = col_lines
 
         self.potential = 0
 
 
 class Node(Element):
 
-    def __init__(self, clamp, col_lines, col_fill):
+    def __init__(self, canvas, clamp, width_lines, col_lines, col_fill):
         super().__init__()
+        self.canvas = canvas
         self.clamp = clamp
         self.row = clamp.row
         self.column = clamp.column
+        self.radius_clamp = clamp.radius_circle
+        self.x_center = clamp.x_center_circle
+        self.y_center = clamp.y_center_circle
+
+        self.width_lines = width_lines
 
         self.color_lines = col_lines
         self.color_fill = col_fill
 
         self.potential = 0
 
+        self.elements_ids = []
+
+    def draw(self):
+        from drawing_elements import draw_node
+        self.elements_ids = draw_node(self.canvas, [self.x_center, self.y_center], self.radius_clamp, self.width_lines,
+                                      self.color_lines, self.color_fill)
+
 
 class Resistor(Element):
 
-    def __init__(self, clamp_start, clamp_end, width_line, col_lines):
+    def __init__(self, canvas, index_of_class, x_start, y_start, x_end, y_end, clamp_start, clamp_end, width_lines,
+                 normal_length,
+                 col_lines):
         super().__init__()
-        self.clamp_start = clamp_start
-        self._clamp_end = clamp_end
-        self.width_line = width_line
+        self.name = 'Резистор'
 
-        self.color_fill = col_lines
+        self.canvas = canvas
+        self.index_of_class = index_of_class  # '1_2'
+
+        self.x_start = x_start
+        self.y_start = y_start
+        self.x_end = x_end
+        self.y_end = y_end
+
+        self.clamp_start = clamp_start
+        self.clamp_end = clamp_end
+        self.normal_length = normal_length
+        self.width_lines = width_lines
+
+        self.color_lines = col_lines
 
         self.resistance = 0
         self.conductivity = 0
         self.current_strength = 0
         self.voltage = 0
+
+        self.elements_ids = []
+
+    def draw(self):
+        from drawing_elements import draw_resistor
+        self.elements_ids = draw_resistor(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
+                                          self.normal_length,
+                                          self.width_lines,
+                                          self.color_lines)
 
 
 class Capacitor(Element):
 
-    def __init__(self, clamp_start, clamp_end, width_line, col_lines):
+    def __init__(self, canvas, index_of_class, x_start, y_start, x_end, y_end, clamp_start, clamp_end, width_lines,
+                 normal_length,
+                 col_lines):
         super().__init__()
+        self.name = 'Конденсатор'
+
+        self.canvas = canvas
+        self.index_of_class = index_of_class
+
+        self.x_start = x_start
+        self.y_start = y_start
+        self.x_end = x_end
+        self.y_end = y_end
+
         self.clamp_start = clamp_start
         self._clamp_end = clamp_end
-        self.width_line = width_line
+        self.width_lines = width_lines
+        self.normal_length = normal_length
 
-        self.color_fill = col_lines
+        self.color_lines = col_lines
 
         self.resistance = 0
         self.conductivity = 0
         self.current_strength = 0
         self.voltage = 0
+
+        self.elements_ids = []
+
+    def draw(self):
+        from drawing_elements import draw_capacitor
+        self.elements_ids = draw_capacitor(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
+                                           self.normal_length,
+                                           self.width_lines,
+                                           self.color_lines)
 
 
 class Inductor_Coil(Element):
 
-    def __init__(self, clamp_start, clamp_end, width_line, col_lines):
+    def __init__(self, canvas, index_of_class, x_start, y_start, x_end, y_end, clamp_start, clamp_end, width_lines,
+                 normal_length,
+                 col_lines):
         super().__init__()
+        self.name = 'Катушка индуктивности'
+        self.canvas = canvas
+        self.index_of_class = index_of_class
+
+        self.x_start = x_start
+        self.y_start = y_start
+        self.x_end = x_end
+        self.y_end = y_end
+
         self.clamp_start = clamp_start
         self._clamp_end = clamp_end
-        self.width_line = width_line
+        self.width_lines = width_lines
+        self.normal_length = normal_length
 
-        self.color_fill = col_lines
+        self.color_lines = col_lines
 
         self.resistance = 0
         self.conductivity = 0
         self.current_strength = 0
         self.voltage = 0
 
+        self.elements_ids = []
+
+    def draw(self):
+        from drawing_elements import draw_inductor_coil
+        self.elements_ids = draw_inductor_coil(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
+                                               self.normal_length,
+                                               self.width_lines,
+                                               self.color_lines)
+
 
 class Source_of_EMF(Element):
 
-    def __init__(self, clamp_start, clamp_end, width_line, col_lines):
+    def __init__(self, canvas, index_of_class, x_start, y_start, x_end, y_end, clamp_start, clamp_end, width_lines,
+                 normal_length,
+                 col_lines):
         super().__init__()
+        self.name = 'Источник ЭДС'
+
+        self.canvas = canvas
+        self.index_of_class = index_of_class
+
+        self.x_start = x_start
+        self.y_start = y_start
+        self.x_end = x_end
+        self.y_end = y_end
+
         self.clamp_start = clamp_start
         self._clamp_end = clamp_end
-        self.width_line = width_line
+        self.width_lines = width_lines
+        self.normal_length = normal_length
 
-        self.color_fill = col_lines
+        self.color_lines = col_lines
 
         self.current_strength = 0
         self.voltage = 0
+
+        self.elements_ids = []
+
+    def draw(self):
+        from drawing_elements import draw_source_of_emf
+        self.elements_ids = draw_source_of_emf(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
+                                               self.normal_length,
+                                               self.width_lines,
+                                               self.color_lines)
 
 
 class Current_Source(Element):
 
-    def __init__(self, clamp_start, clamp_end, width_line, col_lines):
+    def __init__(self, canvas, index_of_class, x_start, y_start, x_end, y_end, clamp_start, clamp_end, width_lines,
+                 normal_length,
+                 col_lines):
         super().__init__()
+        self.name = 'Источник тока'
+
+        self.canvas = canvas
+        self.index_of_class = index_of_class
+
+        self.x_start = x_start
+        self.y_start = y_start
+        self.x_end = x_end
+        self.y_end = y_end
+
         self.clamp_start = clamp_start
         self._clamp_end = clamp_end
-        self.width_line = width_line
+        self.width_lines = width_lines
+        self.normal_length = normal_length
 
-        self.color_fill = col_lines
+        self.color_lines = col_lines
 
         self.current_strength = 0
         self.voltage = 0
+
+        self.elements_ids = []
+
+    def draw(self):
+        from drawing_elements import draw_current_source
+        self.elements_ids = draw_current_source(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
+                                                self.normal_length,
+                                                self.width_lines,
+                                                self.color_lines)

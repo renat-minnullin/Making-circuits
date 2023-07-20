@@ -1,36 +1,10 @@
 from make_display import CLAMPS, WORKSPACE
+from classes_elements import Wire
 
 
-class Wire:
-
-    def __init__(self, canvas, x_start, y_start, x_end, y_end, clamp_start, clamp_end, width, col_highlight,
-                 col_lines):
-        self.canvas = canvas
-        self.x_start = x_start
-        self.y_start = y_start
-        self.x_end = x_end
-        self.y_end = y_end
-
-        self.width = width
-        self.color_fill = col_lines
-        self.color_pressed = col_highlight
-
-        self.clamp_start = clamp_start
-        self.clamp_end = clamp_end
-
-        self.number_in_list = None
-        self.figure_id = None
-
-        self.flag_highlighted_now = False
-
-    def make_wire(self):
-        self.figure_id = self.canvas.create_line(self.x_start, self.y_start, self.x_end, self.y_end,
-                                                 width=self.width,
-                                                 fill=self.color_fill)
-
-    def __del__(self):
-        del self
-
+def binding_btns_of_group(idx_group, idx_element):
+    """Подпрограмма создает функции для кнопок группы, которые в данный момент открыты на экране"""
+    idx_class = str(idx_group) + '_' + str(idx_element)
 
 def binding_clamps_for_making_wires(canvas, wires, clamps):
     """Подпрограмма запускает метод биндинга для рисования проводов"""
@@ -63,7 +37,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                 for coord in clamps_row_col_acceptable_highlighting:
                     r = coord[0]
                     c = coord[1]
-                    canvas.itemconfig(clamps[r][c].figure_id, outline=clicked_clamp.color_outline)
+                    canvas.itemconfig(clamps[r][c].elements_ids[0], outline=clicked_clamp.color_outline)
 
             def flag_acceptable_clamp(clicked_clamp_, start_r, start_c):
                 """Подпрограмма проверяет прожатый зажим на возможность нажатия"""
@@ -119,7 +93,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                 canvas.unbind('<Motion>')
                 root.unbind('<Escape>')
                 moving_wire_line = None
-                canvas.itemconfig(clicked_clamp.figure_id, outline=clicked_clamp.color_outline)
+                canvas.itemconfig(clicked_clamp.elements_ids[0], outline=clicked_clamp.color_outline)
                 delete_acceptable_clamps()
                 flag_moving_line_created = False
 
@@ -185,7 +159,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                                     and 0 <= c < len(clamps[0]) \
                                     and [clamp_.row, clamp_.column] not in clamps[r][
                                 c].list_row_col_connected_clamps:
-                                canvas.itemconfig(clamps[r][c].figure_id, outline=COLOR_HIGHLIGHT)
+                                canvas.itemconfig(clamps[r][c].elements_ids[0], outline=COLOR_HIGHLIGHT)
                                 clamps_row_col_acceptable_highlighting.append([r, c])
 
                     output_clamps_r_c_acceptable_highlighting(clamps_row_col_acceptable_highlighting)
@@ -223,6 +197,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
             def init_wire(clamp_start_, clamp_end_):
                 """Подпрограмма создает провод на представленных зажимах"""
                 from drawing_elements import calculating_intend_at_center
+
                 def press_left_btn_mouse_on_wire(event_press_wire):
                     """Подпрограмма отработки события нажатия на провод"""
 
@@ -283,7 +258,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
                             delete_clamps_connections(wire_x.clamp_start, wire_x.clamp_end)
 
-                            canvas.delete(wire_x.figure_id)
+                            canvas.delete(wire_x.elements_ids[0])
                             wires.remove(wire_x)
 
                             reload_wire_numbers_in_list()
@@ -292,16 +267,16 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                             root.unbind('<Delete>')
                             flag_element_highlighted = False
 
-                    # ---Вход смене выделенного провода---
                     from paths_for_buffer_files import path_buffer_highlighted_wire
                     global flag_element_highlighted
                     if flag_element_highlighted:
+                        # ---Вход смене выделенного провода---
                         fin = open(path_buffer_highlighted_wire, 'r')
                         fin.readline()
                         num_highlighted_wire = int(fin.readline().split()[0])
                         fin.close()
 
-                        canvas.itemconfig(wires[num_highlighted_wire].figure_id,
+                        canvas.itemconfig(wires[num_highlighted_wire].elements_ids[0],
                                           fill=wires[num_highlighted_wire].color_fill)
                         wires[num_highlighted_wire].flag_highlighted_now = False
 
@@ -316,7 +291,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                     fout.write(str(wire.number_in_list))
                     fout.close()
 
-                    canvas.itemconfig(wire.figure_id, fill=wire.color_pressed)
+                    canvas.itemconfig(wire.elements_ids[0], fill=wire.color_pressed)
                     wire.flag_highlighted_now = True
                     flag_element_highlighted = True
 
@@ -328,10 +303,10 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
                 wire = Wire(canvas, x_start_wire, y_start_wire, x_end_wire, y_end_wire, clamp_start_,
                             clamp_end_, WIDTH_WIRES, COLOR_HIGHLIGHT, COLOR_LINES)
-                wire.make_wire()
+                wire.draw()
                 wires.append(wire)
                 wire.number_in_list = len(wires) - 1
-                canvas.tag_bind(wire.figure_id, '<Button-1>', press_left_btn_mouse_on_wire)
+                canvas.tag_bind(wire.elements_ids[0], '<Button-1>', press_left_btn_mouse_on_wire)
 
             from make_display import root
             from options_visualization import WIDTH_WIRES, COLOR_HIGHLIGHT, COLOR_LINES
@@ -359,7 +334,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
                     init_moving_line(clamp_end, event_press_clamp.x, event_press_clamp.y)
 
-        canvas.tag_bind(clicked_clamp.figure_id, '<Button-1>', click_left_btn_mouse_on_clamp)
+        canvas.tag_bind(clicked_clamp.elements_ids[0], '<Button-1>', click_left_btn_mouse_on_clamp)
 
     for row in range(len(clamps)):
         for col in range(len(clamps[0])):
