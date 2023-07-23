@@ -1,15 +1,17 @@
-def bind_element_to_click(element_of_class):
+def bind_element_to_click(element_of_class, list_elements_of_class):
+    """Подпрограмма отрабатывает нажатие по любой части элемента и биндит его удаление или переключение"""
     from make_display import root, WORKSPACE
     canvas = WORKSPACE
+
     for id_piece_element in element_of_class.elements_ids:
         canvas.tag_bind(id_piece_element, '<Button-1>',
-                        lambda element: click_left_btn_mouse_on_element(element_of_class))
+                        lambda element: click_left_btn_mouse_on_element(element_of_class, list_elements_of_class))
 
-    def click_left_btn_mouse_on_element(element):
-        """Подпрограмма отработки события нажатия на провод"""
+    def click_left_btn_mouse_on_element(element, list_elements_class):
+        """Подпрограмма отработки события нажатия на элемент"""
 
         def delete_highlighted_element(event_press_delete):
-            """Подпрограмма удаляет выделенный провод"""
+            """Подпрограмма удаляет выделенный элемент"""
 
             def reload_massive_clamped_clamps(clamp_start_x, clamp_end_x):
                 """Подпрограмма перезаписывает данные зажатых зажимов"""
@@ -40,60 +42,53 @@ def bind_element_to_click(element_of_class):
                 clamp_end_x.list_row_col_connected_clamps.remove([clamp_start_x.row, clamp_start_x.column])
                 clamp_end_x.number_connected_wires -= 1
 
-            def reload_wire_numbers_in_list():
+            def reload_element_numbers_in_list():
                 """Подпрограмма перезаписывания порядка нумерации элементов в списке (смещены из-за удаления
                 одного из экземпляров"""
-                for num in range(len(list_elements)):
-                    list_elements[num].number_in_list = num
+                for num in range(len(list_elements_class)):
+                    list_elements_class[num].number_in_list = num
 
-            def delete_lines(elems_ids):
+            def delete_all_part_of_element(elems_ids):
+                """Подпрограмма удаляет все части элемента"""
                 for id_piece_elem in elems_ids:
                     canvas.delete(id_piece_elem)
 
-            def define_list_objects_like_element(elem):
-                name_class_element = elem.__class__.__name__
-
-                if name_class_element == 'Wire':
-                    from make_circuit_by_user import WIRES
-                    list_elems = WIRES
-                elif name_class_element == 'Resistor':
-                    from make_circuit_by_user import RESISTORS
-                    list_elems = RESISTORS
-                else:
-                    list_elems = ['MISTAKE']
-                return list_elems
-
-            # ---Вход при нажатии клавиши DELETE при выделенном проводе---
+            # ---Вход при нажатии клавиши DELETE при выделенном элементе---
             from make_circuit_by_user import element_highlighted
 
             if element_highlighted[0]:
-                reload_massive_clamped_clamps(element.clamp_start, element.clamp_end)
 
-                delete_clamps_connections(element.clamp_start, element.clamp_end)
+                delete_all_part_of_element(element.elements_ids)
 
-                delete_lines(element.elements_ids)
+                list_elements_class.remove(element)
 
-                list_elements = define_list_objects_like_element(element)
+                reload_element_numbers_in_list()
 
-                list_elements.remove(element)
-
-                reload_wire_numbers_in_list()
+                if element.__class__.__name__ == 'Wire':
+                    reload_massive_clamped_clamps(element.clamp_start, element.clamp_end)
+                    delete_clamps_connections(element.clamp_start, element.clamp_end)
+                else:
+                    canvas.itemconfig(element.own_wire.elements_ids[0], state='normal')
 
                 element.__del__()
                 root.unbind('<Delete>')
                 element_highlighted[0] = None
 
-        def exchange_color_element_lines(elems_ids, color):
+        def exchange_all_part_of_element_color(elems_ids, color):
+            """Подпрограмма заменяет цвет всех частей элемента"""
             for id_piece_elem in elems_ids:
-                canvas.itemconfig(id_piece_elem, fill=color)
+                tags = canvas.gettags(id_piece_elem)
+
+                if 'line' in tags:
+                    canvas.itemconfig(id_piece_elem, fill=color)
+                elif 'arc' or 'oval' in tags:
+                    canvas.itemconfig(id_piece_elem, outline=color)
 
         from make_circuit_by_user import element_highlighted
 
         if element_highlighted[0]:
             # ---Вход смене выделенного элемента---
-
-            canvas.itemconfig(element_highlighted[0].elements_ids[0],
-                              fill=element.color_lines)
+            exchange_all_part_of_element_color(element_highlighted[0].elements_ids, element.color_lines)
             element_highlighted[0].flag_highlighted_now = False
             element_highlighted[0] = element
 
@@ -101,6 +96,6 @@ def bind_element_to_click(element_of_class):
 
         element.flag_highlighted_now = True
         element_highlighted[0] = element
-        exchange_color_element_lines(element_highlighted[0].elements_ids, element_highlighted[0].color_highlight)
+        exchange_all_part_of_element_color(element_highlighted[0].elements_ids, element_highlighted[0].color_highlight)
 
         root.bind('<Delete>', delete_highlighted_element)

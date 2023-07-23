@@ -92,16 +92,6 @@ def make_frames_info(width_frame, height_string):
             else:
                 print('Имя пустое')
 
-        def translater_type_current(type_c: int):
-            """Переводит тип тока из 0, 1, 2 в название"""
-            if type_c == 0:
-                str_type_current = 'постоянный'
-            elif type_c == 1:
-                str_type_current = 'синусоидальный'
-            else:
-                str_type_current = 'несинусоидальный'
-            return str_type_current
-
         frame_info_circuit = tk.LabelFrame(main_frame, text='Параметры цепи', bg=col_bg_info_frame, fg=col_text)
         frame_info_circuit.grid(column=0, row=0, stick='w', padx=5)
 

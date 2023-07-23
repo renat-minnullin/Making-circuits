@@ -1,5 +1,5 @@
 from make_display import CLAMPS, WORKSPACE
-from classes_elements import Wire, Resistor
+from classes_elements import Wire, Resistor, Capacitor, Inductor_Coil
 
 
 def binding_btns_of_group(idx_group, idx_element_in_list):
@@ -10,26 +10,30 @@ def binding_btns_of_group(idx_group, idx_element_in_list):
         canvas = hl_wire_.canvas
         canvas.itemconfig(hl_wire_.elements_ids[0], state='hidden')
 
-    def binding_btns_of_resistive_elements(idx_elem_in_list, hl_wire):
+    def bind_one_btn(hl_wire, Class_element, list_elements_of_the_class):
+        from bind_the_element_to_click import bind_element_to_click
+        element_of_the_class = Class_element(hl_wire.canvas, hl_wire.x_start, hl_wire.y_start,
+                                             hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
+                                             hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
+                                             hl_wire.color_highlight,
+                                             hl_wire.color_lines, hl_wire)
+        element_of_the_class.draw()
+        list_elements_of_the_class.append(element_of_the_class)
+        bind_element_to_click(element_of_the_class, list_elements_of_the_class)
+
+    def binding_btns_of_resistive_elements(idx_elem_in_list, highlight_wire):
         """Подпрограмма создает функции для кнопок группы Резистивные элементы (индекс 0)"""
-        from bind_delete_element import bind_element_to_click
+
+        hide_highlighted_wire(highlight_wire)
         if idx_elem_in_list == 0:
             global RESISTORS
-
-            hide_highlighted_wire(hl_wire)
-            resistor = Resistor(hl_wire.canvas, hl_wire.x_start, hl_wire.y_start,
-                                hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
-                                hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
-                                hl_wire.color_highlight,
-                                hl_wire.color_lines, hl_wire)
-            resistor.draw()
-            RESISTORS.append(resistor)
-            bind_element_to_click(resistor)
-
+            bind_one_btn(highlight_wire, Resistor, RESISTORS)
         elif idx_elem_in_list == 1:
-            pass
+            global INDUCTOR_COILS
+            bind_one_btn(highlight_wire, Inductor_Coil, INDUCTOR_COILS)
         elif idx_elem_in_list == 2:
-            pass
+            global CAPACITORS
+            bind_one_btn(highlight_wire, Capacitor, CAPACITORS)
 
     def binding_btns_of_sources(idx_elem_in_list, hl_wire):
         pass
@@ -190,7 +194,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
                 from drawing_elements import calculating_intend_at_center
                 from options_visualization import NORMAL_LENGTH
-                from bind_delete_element import bind_element_to_click
+                from bind_the_element_to_click import bind_element_to_click
 
                 x_start_wire, y_start_wire, x_end_wire, y_end_wire = calculating_intend_at_center(
                     clamp_start_.radius_circle, clamp_start_.x_center_circle, clamp_start_.y_center_circle,
@@ -202,7 +206,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                 wires.append(wire)
                 wire.number_in_list = len(wires) - 1
 
-                bind_element_to_click(wire)
+                bind_element_to_click(wire, wires)
 
             from make_display import root
             from options_visualization import WIDTH_WIRES, COLOR_HIGHLIGHT, COLOR_LINES
@@ -245,4 +249,6 @@ flag_moving_line_created = False
 
 WIRES = []
 RESISTORS = []
+CAPACITORS = []
+INDUCTOR_COILS = []
 binding_clamps_for_making_wires(WORKSPACE, WIRES, CLAMPS)
