@@ -1,7 +1,7 @@
 """Данный файл включает в себя все функции по вводу/выводу буферных файлов"""
 
 
-def input_highlighted_wire():
+def input_id_highlighted_element():
     """Подпрограмма вводит из файла номер провода в списке проводов, который подсвечен в данный момент"""
     from paths_for_buffer_files import path_buffer_highlighted_wire
     fin = open(path_buffer_highlighted_wire, 'r')
@@ -11,7 +11,7 @@ def input_highlighted_wire():
     return num_highlighted_wire_
 
 
-def output_highlighted_wire(num_highlighted_wire_):
+def output_id_highlighted_element(num_highlighted_wire_):
     """Подпрограмма выводит в файл номер провода в списке проводов, который подсвечен в данный момент"""
     from paths_for_buffer_files import path_buffer_highlighted_wire
     fout = open(path_buffer_highlighted_wire, 'w')

@@ -78,8 +78,8 @@ def create_list_library_elements():
     return names_of_groups, names_elements_of_groups
 
 
-def frame_info_making(width_frame, height_string):
-    def frame_info_circuit_making(main_frame, width, height, col_bg_info_frame, col_text):
+def make_frames_info(width_frame, height_string):
+    def make_frame_info_circuit(main_frame, width, height, col_bg_info_frame, col_text):
         """Подпрограмма создает рамку слева в главном окне (СТОЛБЕЦ 0, РЯД 0). В ней будет записана информация о цепи:
         тип тока, количество узлов, количество ветвей и тд."""
 
@@ -131,7 +131,7 @@ def frame_info_making(width_frame, height_string):
         btn_run.grid(row=4, column=0, columnspan=2)
         return btn_run
 
-    def frame_info_element_making(main_frame, width, height, col_bg_info_frame, col_text):
+    def make_frame_info_element(main_frame, width, height, col_bg_info_frame, col_text):
         """Подпрограмма создает рамку под рамкой информации о цепи (СТОЛБЕЦ 0, РЯД 1), в которой будет появляться
         информация об элементе, на который в данный момент направлен курсор"""
 
@@ -146,15 +146,15 @@ def frame_info_making(width_frame, height_string):
     from options_visualization import COLOR_BG_INFO_FRAME, COLOR_TEXT
     frame_info = tk.Frame(bg=COLOR_BG_INFO_FRAME, width=width_frame)
     frame_info.grid(row=0, column=0, sticky='ns')
-    btn_run_circuit = frame_info_circuit_making(frame_info, width_frame, height_string,
+    btn_run_circuit = make_frame_info_circuit(frame_info, width_frame, height_string,
                                                 COLOR_BG_INFO_FRAME, COLOR_TEXT)
-    frame_info_element_making(frame_info, width_frame, height_string, COLOR_BG_INFO_FRAME, COLOR_TEXT)
+    make_frame_info_element(frame_info, width_frame, height_string, COLOR_BG_INFO_FRAME, COLOR_TEXT)
 
     return btn_run_circuit
 
 
-def workspace_making_and_building(window, list_names_of_groups_elements, list_elements_by_groups, width_library,
-                                  width_workspace, height_workspace, width_quick_access, height_quick_access):
+def make_frames_workspace(window, list_names_of_groups_elements, list_elements_by_groups, width_library,
+                          width_workspace, height_workspace, width_quick_access, height_quick_access):
     """Подпрограмма для создания рамок: рабочей области зажимов, области быстрого доступа, области библиотеки элементов и запуска их"""
 
     def make_frame_quick_access(frame_wrksp, width_quick_access_, height_quick_access_, radius_clamp_, indent_,
@@ -329,8 +329,6 @@ def workspace_making_and_building(window, list_names_of_groups_elements, list_el
     return clamps, workspace
 
 
-from options_visualization import NORMAL_LENGTH
-
 path_file_input = 'date/options_window.txt'
 WIDTH_WINDOW, HEIGHT_WINDOW = input_options_window(path_file_input)
 
@@ -346,23 +344,23 @@ MAX_COUNT_SIMBOLS_LIST_NGE = ''
 
 WIDTH_INFO_FRAME = 40  # Количество символов в строке рамки информации
 HEIGHT_STRING_INFO_FRAME = 1
-BUTTON_RUN = frame_info_making(WIDTH_INFO_FRAME, HEIGHT_STRING_INFO_FRAME)
+BUTTON_RUN = make_frames_info(WIDTH_INFO_FRAME, HEIGHT_STRING_INFO_FRAME)
 
 WIDTH_LIBRARY = 200  # ПОКА ЧТО ВЫБРАНА НАУГАД
 HEIGHT_LIBRARY = HEIGHT_WINDOW
 WIDTH_WORKSPACE = WIDTH_WINDOW - WIDTH_LIBRARY - WIDTH_INFO_FRAME * 7.65  # подгонка для левого края и перевод с символов в длину
 
 WIDTH_QUICK_ACCESS = WIDTH_WORKSPACE
-HEIGHT_QUICK_ACCESS = NORMAL_LENGTH
+HEIGHT_QUICK_ACCESS = 50
 
 HEIGHT_WORKSPACE = HEIGHT_WINDOW - HEIGHT_QUICK_ACCESS - 3  # небольшой отступ от нижней стороны
 
-CLAMPS, WORKSPACE = workspace_making_and_building(root,
-                                                  LIST_NAMES_OF_GROUPS_ELEMENTS,
-                                                  LIST_ELEMENTS_BY_GROUPS,
-                                                  WIDTH_LIBRARY,
-                                                  WIDTH_WORKSPACE,
-                                                  HEIGHT_WORKSPACE,
-                                                  WIDTH_QUICK_ACCESS,
-                                                  HEIGHT_QUICK_ACCESS,
-                                                  )
+CLAMPS, WORKSPACE = make_frames_workspace(root,
+                                          LIST_NAMES_OF_GROUPS_ELEMENTS,
+                                          LIST_ELEMENTS_BY_GROUPS,
+                                          WIDTH_LIBRARY,
+                                          WIDTH_WORKSPACE,
+                                          HEIGHT_WORKSPACE,
+                                          WIDTH_QUICK_ACCESS,
+                                          HEIGHT_QUICK_ACCESS,
+                                          )
