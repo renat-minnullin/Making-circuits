@@ -1,8 +1,8 @@
 from make_display import CLAMPS, WORKSPACE
-from classes_elements import Wire, Resistor, Capacitor, Inductor_Coil
+from classes_elements import Wire, Resistor, Capacitor, InductorCoil
 
 
-def bind_areas_of_quick_access_exchange_color(clicked_area_q_a, areas_q_a):
+def bind_areas_of_quick_access_exchange_color(clicked_area_q_a):
     """Подпрограмма биндит область быстрого доступа на нажатие"""
     from options_visualization import COLOR_HIGHLIGHT, COLOR_BG_WORKSPACE
     global area_quick_access_highlighted, element_highlighted, moving_wire_line
@@ -20,38 +20,60 @@ def bind_areas_of_quick_access_exchange_color(clicked_area_q_a, areas_q_a):
             clicked_area_q_a.config(bg=COLOR_HIGHLIGHT)
 
 
-def binding_btns_of_group(idx_group, idx_element_in_list, areas_q_a):
+def binding_btns_of_group(idx_group, idx_element_in_list):
     """Подпрограмма создает функции для кнопок группы, которые в данный момент открыты на экране"""
 
-    def hide_highlighted_wire(hl_wire_):
-        """Подпрограмма скрывает провод, на который крепится элемент"""
-        canvas = hl_wire_.canvas
-        canvas.itemconfig(hl_wire_.elements_ids[0], state='hidden')
+    def working_out_element_of_group(Class_this_element, list_elements_of_the_this_class, drawing_function):
+        """Подпрограмма отрабатывает все действия, которые необходимо выполнять при нажатии на кнопку из разных положений"""
+        def hide_highlighted_wire(hl_wire_):
+            """Подпрограмма скрывает провод, на который крепится элемент"""
+            canvas = hl_wire_.canvas
+            canvas.itemconfig(hl_wire_.elements_ids[0], state='hidden')
 
-    def bind_one_btn(hl_wire, Class_element, list_elements_of_the_class):
-        from bind_the_element_to_click import bind_element_to_click
-        element_of_the_class = Class_element(hl_wire.canvas, hl_wire.x_start, hl_wire.y_start,
-                                             hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
-                                             hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
-                                             hl_wire.color_highlight,
-                                             hl_wire.color_lines, hl_wire)
-        element_of_the_class.draw()
-        list_elements_of_the_class.append(element_of_the_class)
-        bind_element_to_click(element_of_the_class, list_elements_of_the_class)
+        def bind_one_btn(hl_wire, Class_element, list_elements_of_the_class):
+            """Подпрограмма запускает бинд одной кнопки в библиотеке элементов"""
+            from bind_the_element_to_click import bind_element_to_click
+            element_of_the_class = Class_element(hl_wire.canvas, hl_wire.x_start, hl_wire.y_start,
+                                                 hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
+                                                 hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
+                                                 hl_wire.color_highlight,
+                                                 hl_wire.color_lines, hl_wire)
+            element_of_the_class.draw()
+            list_elements_of_the_class.append(element_of_the_class)
+            bind_element_to_click(element_of_the_class, list_elements_of_the_class)
 
-    def binding_btns_of_resistive_elements(idx_elem_in_list, highlight_wire):
-        """Подпрограмма создает функции для кнопок группы Резистивные элементы (индекс 0)"""
+        from options_visualization import COLOR_BG_WORKSPACE, COLOR_LINES, WIDTH_LINES
+        global element_highlighted, area_quick_access_highlighted
+        if element_highlighted[0].__class__.__name__ == 'Wire':
 
-        hide_highlighted_wire(highlight_wire)
+            highlighted_wire = element_highlighted[0]
+            hide_highlighted_wire(highlighted_wire)
+            bind_one_btn(highlighted_wire, Class_this_element, list_elements_of_the_this_class)
+        elif area_quick_access_highlighted[0]:
+            area = area_quick_access_highlighted[0]
+            if area.own_elements_ids:
+                area.delete_own_element()
+            area.config(area, bg=area.color_bg)
+            area.own_elements_ids = drawing_function(area, [0, area.height // 2], [area.width, area.height // 2],
+                                                     area.width, WIDTH_LINES, COLOR_LINES)
+
+    def binding_btns_of_resistive_elements(idx_elem_in_list):
+        """Подпрограмма создает функции для кнопок группы Резистивные элементы (индекс группы 0)"""
+
         if idx_elem_in_list == 0:
             global RESISTORS
-            bind_one_btn(highlight_wire, Resistor, RESISTORS)
+            from drawing_elements import draw_resistor
+            working_out_element_of_group(Resistor, RESISTORS, draw_resistor)
+
         elif idx_elem_in_list == 1:
             global INDUCTOR_COILS
-            bind_one_btn(highlight_wire, Inductor_Coil, INDUCTOR_COILS)
+            from drawing_elements import draw_inductor_coil
+            working_out_element_of_group(InductorCoil, INDUCTOR_COILS, draw_inductor_coil)
+
         elif idx_elem_in_list == 2:
             global CAPACITORS
-            bind_one_btn(highlight_wire, Capacitor, CAPACITORS)
+            from drawing_elements import draw_capacitor
+            working_out_element_of_group(Capacitor, CAPACITORS, draw_capacitor)
 
     def binding_btns_of_sources(idx_elem_in_list, hl_wire):
         pass
@@ -62,20 +84,14 @@ def binding_btns_of_group(idx_group, idx_element_in_list, areas_q_a):
     def binding_btns_of_other(idx_elem_in_list, hl_wire):
         pass
 
-    global element_highlighted, area_quick_access_highlighted
-
-    if element_highlighted[0].__class__.__name__ == 'Wire':
-        highlighted_wire = element_highlighted[0]
-        if idx_group == 0:
-            binding_btns_of_resistive_elements(idx_element_in_list, highlighted_wire)
-        elif idx_group == 1:
-            binding_btns_of_sources(idx_element_in_list, highlighted_wire)
-        elif idx_group == 2:
-            binding_btns_of_nonlinear_elements(idx_element_in_list, highlighted_wire)
-        elif idx_group == 3:
-            binding_btns_of_other(idx_element_in_list, highlighted_wire)
-    elif area_quick_access_highlighted[0]:
-        pass
+    if idx_group == 0:
+        binding_btns_of_resistive_elements(idx_element_in_list)
+    elif idx_group == 1:
+        binding_btns_of_sources(idx_element_in_list)
+    elif idx_group == 2:
+        binding_btns_of_nonlinear_elements(idx_element_in_list)
+    elif idx_group == 3:
+        binding_btns_of_other(idx_element_in_list)
 
 
 def binding_clamps_for_making_wires(canvas, wires, clamps):
@@ -218,14 +234,14 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                     clamp_end_.x_center_circle, clamp_end_.y_center_circle)
 
                 wire = Wire(canvas, x_start_wire, y_start_wire, x_end_wire, y_end_wire, NORMAL_LENGTH, clamp_start_,
-                            clamp_end_, WIDTH_WIRES, COLOR_HIGHLIGHT, COLOR_LINES)
+                            clamp_end_, WIDTH_LINES, COLOR_HIGHLIGHT, COLOR_LINES)
                 wire.draw()
                 wires.append(wire)
 
                 bind_element_to_click(wire, wires)
 
             from make_display import root
-            from options_visualization import WIDTH_WIRES, COLOR_HIGHLIGHT, COLOR_LINES
+            from options_visualization import WIDTH_LINES, COLOR_HIGHLIGHT, COLOR_LINES
             from input_and_output_buffer import input_id_moving_line, input_r_c_start_clamp
             global moving_wire_line
 

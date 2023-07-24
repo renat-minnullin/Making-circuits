@@ -78,7 +78,7 @@ def working_circuit(btn_run_circuit, clamps):
                 """Подпрограмма создает массив, содержащий двухячейные массивы с номером строки и столбца
                 зажима, являющегося узлом, причем в массиве все элементы будут упорядочены по возрастанию.
                 Также подпрограмма создает экземпляры класса Node"""
-                from options_visualization import WIDTH_WIRES, COLOR_LINES, COLOR_NODE_FILL
+                from options_visualization import WIDTH_LINES, COLOR_LINES, COLOR_NODE_FILL
                 from make_circuit_by_user import WORKSPACE
                 massive_row_col_nodes = []
                 nodes_x = []
@@ -87,7 +87,7 @@ def working_circuit(btn_run_circuit, clamps):
                     col = coord[1]
                     if clamps[row][col].number_connected_wires >= 3:
                         massive_row_col_nodes.append([row, col])
-                        node = Node(WORKSPACE, clamps[row][col], WIDTH_WIRES, COLOR_LINES, COLOR_NODE_FILL)
+                        node = Node(WORKSPACE, clamps[row][col], WIDTH_LINES, COLOR_LINES, COLOR_NODE_FILL)
                         nodes_x.append(node)
                 return massive_row_col_nodes, nodes_x
 
