@@ -22,10 +22,10 @@ class Wire(Element):
         self.clamp_start = clamp_start
         self.clamp_end = clamp_end
 
-        self.number_in_list = None
-        self.figure_id = None
 
-        self.flag_highlighted_now = False
+
+
+
 
         self.elements_ids = []
 

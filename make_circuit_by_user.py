@@ -74,8 +74,6 @@ def binding_btns_of_group(idx_group, idx_element_in_list, areas_q_a):
         pass
 
 
-
-
 def binding_clamps_for_making_wires(canvas, wires, clamps):
     """Подпрограмма запускает метод биндинга для рисования проводов"""
 
@@ -219,7 +217,6 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                             clamp_end_, WIDTH_WIRES, COLOR_HIGHLIGHT, COLOR_LINES)
                 wire.draw()
                 wires.append(wire)
-                wire.number_in_list = len(wires) - 1
 
                 bind_element_to_click(wire, wires)
 

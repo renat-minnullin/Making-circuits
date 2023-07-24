@@ -42,12 +42,6 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
                 clamp_end_x.list_row_col_connected_clamps.remove([clamp_start_x.row, clamp_start_x.column])
                 clamp_end_x.number_connected_wires -= 1
 
-            def reload_element_numbers_in_list():
-                """Подпрограмма перезаписывания порядка нумерации элементов в списке (смещены из-за удаления
-                одного из экземпляров"""
-                for num in range(len(list_elements_class)):
-                    list_elements_class[num].number_in_list = num
-
             def delete_all_part_of_element(elems_ids):
                 """Подпрограмма удаляет все части элемента"""
                 for id_piece_elem in elems_ids:
@@ -61,8 +55,6 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
                 delete_all_part_of_element(element.elements_ids)
 
                 list_elements_class.remove(element)
-
-                reload_element_numbers_in_list()
 
                 if element.__class__.__name__ == 'Wire':
                     reload_massive_clamped_clamps(element.clamp_start, element.clamp_end)
@@ -89,12 +81,11 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
         if element_highlighted[0]:
             # ---Вход смене выделенного элемента---
             exchange_all_part_of_element_color(element_highlighted[0].elements_ids, element.color_lines)
-            element_highlighted[0].flag_highlighted_now = False
+
             element_highlighted[0] = element
 
         # ---Вход при первом выделении элемента---
 
-        element.flag_highlighted_now = True
         element_highlighted[0] = element
         exchange_all_part_of_element_color(element_highlighted[0].elements_ids, element_highlighted[0].color_highlight)
 
