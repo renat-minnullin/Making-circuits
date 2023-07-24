@@ -37,6 +37,15 @@ class Wire(Element):
                                       self.width_lines,
                                       self.color_lines)
 
+    def exchange_color(self, color):
+        """Подпрограмма заменяет цвет всех частей элемента"""
+        for id_piece_of_element in self.elements_ids:
+            tags = self.canvas.gettags(id_piece_of_element)
+
+            if 'line' in tags:
+                self.canvas.itemconfig(id_piece_of_element, fill=color)
+            elif 'arc' or 'oval' in tags:
+                self.canvas.itemconfig(id_piece_of_element, outline=color)
 
 class Connection(Element):
     """Данный класс отвечает за объект соединения исключительно двух проводов на одном clamp"""

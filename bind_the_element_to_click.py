@@ -76,17 +76,16 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
                 elif 'arc' or 'oval' in tags:
                     canvas.itemconfig(id_piece_elem, outline=color)
 
-        from make_circuit_by_user import element_highlighted
+        from options_visualization import COLOR_BG_WORKSPACE
+        from make_circuit_by_user import element_highlighted, area_quick_access_highlighted
 
-        if element_highlighted[0]:
-            # ---Вход смене выделенного элемента---
-            exchange_all_part_of_element_color(element_highlighted[0].elements_ids, element.color_lines)
+        if area_quick_access_highlighted[0]:
+            area_quick_access_highlighted[0].config(area_quick_access_highlighted[0], bg=COLOR_BG_WORKSPACE)
+            area_quick_access_highlighted[0] = None
 
-            element_highlighted[0] = element
+        elif element_highlighted[0]:
+            element_highlighted[0].exchange_color(element_highlighted[0].color_lines)
 
-        # ---Вход при первом выделении элемента---
-
+        element.exchange_color(element.color_highlight)
         element_highlighted[0] = element
-        exchange_all_part_of_element_color(element_highlighted[0].elements_ids, element_highlighted[0].color_highlight)
-
         root.bind('<Delete>', delete_highlighted_element)

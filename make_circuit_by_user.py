@@ -2,18 +2,22 @@ from make_display import CLAMPS, WORKSPACE
 from classes_elements import Wire, Resistor, Capacitor, Inductor_Coil
 
 
-def bind_areas_of_quick_access_exchange_color(id_area, areas_q_a):
+def bind_areas_of_quick_access_exchange_color(clicked_area_q_a, areas_q_a):
     """Подпрограмма биндит область быстрого доступа на нажатие"""
     from options_visualization import COLOR_HIGHLIGHT, COLOR_BG_WORKSPACE
-    global id_area_quick_access_highlighted
-    if id_area_quick_access_highlighted[0] is not None:
-        id_highlighted = id_area_quick_access_highlighted[0]
-        areas_q_a[id_highlighted].config(areas_q_a[id_highlighted], bg=COLOR_BG_WORKSPACE)
-        id_area_quick_access_highlighted[0] = id_area
-        areas_q_a[id_area].config(areas_q_a[id_area], bg=COLOR_HIGHLIGHT)
-    else:
-        id_area_quick_access_highlighted[0] = id_area
-        areas_q_a[id_area].config(bg=COLOR_HIGHLIGHT)
+    global area_quick_access_highlighted, element_highlighted, moving_wire_line
+    if moving_wire_line is None:
+        if element_highlighted[0]:
+            element_highlighted[0].exchange_color(element_highlighted[0].color_lines)
+            element_highlighted[0] = None
+
+        if area_quick_access_highlighted[0]:
+            area_quick_access_highlighted[0].config(area_quick_access_highlighted[0], bg=COLOR_BG_WORKSPACE)
+            area_quick_access_highlighted[0] = clicked_area_q_a
+            clicked_area_q_a.config(clicked_area_q_a, bg=COLOR_HIGHLIGHT)
+        else:
+            area_quick_access_highlighted[0] = clicked_area_q_a
+            clicked_area_q_a.config(bg=COLOR_HIGHLIGHT)
 
 
 def binding_btns_of_group(idx_group, idx_element_in_list, areas_q_a):
@@ -58,7 +62,7 @@ def binding_btns_of_group(idx_group, idx_element_in_list, areas_q_a):
     def binding_btns_of_other(idx_elem_in_list, hl_wire):
         pass
 
-    global element_highlighted, id_area_quick_access_highlighted
+    global element_highlighted, area_quick_access_highlighted
 
     if element_highlighted[0].__class__.__name__ == 'Wire':
         highlighted_wire = element_highlighted[0]
@@ -70,7 +74,7 @@ def binding_btns_of_group(idx_group, idx_element_in_list, areas_q_a):
             binding_btns_of_nonlinear_elements(idx_element_in_list, highlighted_wire)
         elif idx_group == 3:
             binding_btns_of_other(idx_element_in_list, highlighted_wire)
-    elif id_area_quick_access_highlighted[0] is not None:
+    elif area_quick_access_highlighted[0]:
         pass
 
 
@@ -256,7 +260,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
 moving_wire_line = None
 element_highlighted = [None]
-id_area_quick_access_highlighted = [None]
+area_quick_access_highlighted = [None]
 flag_moving_line_created = False
 
 WIRES = []
