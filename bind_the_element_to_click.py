@@ -66,26 +66,16 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
                 root.unbind('<Delete>')
                 element_highlighted[0] = None
 
-        def exchange_all_part_of_element_color(elems_ids, color):
-            """Подпрограмма заменяет цвет всех частей элемента"""
-            for id_piece_elem in elems_ids:
-                tags = canvas.gettags(id_piece_elem)
-
-                if 'line' in tags:
-                    canvas.itemconfig(id_piece_elem, fill=color)
-                elif 'arc' or 'oval' in tags:
-                    canvas.itemconfig(id_piece_elem, outline=color)
-
         from options_visualization import COLOR_BG_WORKSPACE
-        from make_circuit_by_user import element_highlighted, area_quick_access_highlighted
+        from make_circuit_by_user import element_highlighted, area_quick_access_highlighted, moving_wire_line
+        if moving_wire_line is None:
+            if area_quick_access_highlighted[0]:
+                area_quick_access_highlighted[0].config(area_quick_access_highlighted[0], bg=COLOR_BG_WORKSPACE)
+                area_quick_access_highlighted[0] = None
 
-        if area_quick_access_highlighted[0]:
-            area_quick_access_highlighted[0].config(area_quick_access_highlighted[0], bg=COLOR_BG_WORKSPACE)
-            area_quick_access_highlighted[0] = None
+            elif element_highlighted[0]:
+                element_highlighted[0].exchange_color(element_highlighted[0].color_lines)
 
-        elif element_highlighted[0]:
-            element_highlighted[0].exchange_color(element_highlighted[0].color_lines)
-
-        element.exchange_color(element.color_highlight)
-        element_highlighted[0] = element
-        root.bind('<Delete>', delete_highlighted_element)
+            element.exchange_color(element.color_highlight)
+            element_highlighted[0] = element
+            root.bind('<Delete>', delete_highlighted_element)
