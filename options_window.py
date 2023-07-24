@@ -61,7 +61,7 @@ class Window(tk.Tk):
 if __name__ == "__main__":
     WIDTH_WINDOW = 300
     HEIGHT_WINDOW = 500
-    NAME_FILE_OUTPUT = 'date/options_date.txt'
+    NAME_FILE_OUTPUT = 'date/options_window.txt'
     TITLE = 'Настройки'
     LOCATION = '+600+100'
     PATH_ICON = 'C:/Users/Ренат/Desktop/Программа для расчета цепей переменного тока/Icons/options.png'

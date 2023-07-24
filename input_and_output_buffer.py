@@ -1,25 +1,6 @@
 """Данный файл включает в себя все функции по вводу/выводу буферных файлов"""
 
 
-def input_id_highlighted_element():
-    """Подпрограмма вводит из файла номер провода в списке проводов, который подсвечен в данный момент"""
-    from paths_for_buffer_files import path_buffer_highlighted_wire
-    fin = open(path_buffer_highlighted_wire, 'r')
-    fin.readline()
-    num_highlighted_wire_ = int(fin.readline().split()[0])
-    fin.close()
-    return num_highlighted_wire_
-
-
-def output_id_highlighted_element(num_highlighted_wire_):
-    """Подпрограмма выводит в файл номер провода в списке проводов, который подсвечен в данный момент"""
-    from paths_for_buffer_files import path_buffer_highlighted_wire
-    fout = open(path_buffer_highlighted_wire, 'w')
-    fout.write('Номер провода в списке проводов:\n')
-    fout.write(str(num_highlighted_wire_))
-    fout.close()
-
-
 def input_clamps_r_c_acceptable_highlighting():
     """Подпрограмма вводит из файла массив координат подсвеченных(доступных для нажатия) зажимов"""
     from paths_for_buffer_files import path_buffer_row_col_acceptable_clamps

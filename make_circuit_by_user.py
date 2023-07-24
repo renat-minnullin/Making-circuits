@@ -2,7 +2,21 @@ from make_display import CLAMPS, WORKSPACE
 from classes_elements import Wire, Resistor, Capacitor, Inductor_Coil
 
 
-def binding_btns_of_group(idx_group, idx_element_in_list):
+def bind_areas_of_quick_access_exchange_color(id_area, areas_q_a):
+    """Подпрограмма биндит область быстрого доступа на нажатие"""
+    from options_visualization import COLOR_HIGHLIGHT, COLOR_BG_WORKSPACE
+    global id_area_quick_access_highlighted
+    if id_area_quick_access_highlighted[0] is not None:
+        id_highlighted = id_area_quick_access_highlighted[0]
+        areas_q_a[id_highlighted].config(areas_q_a[id_highlighted], bg=COLOR_BG_WORKSPACE)
+        id_area_quick_access_highlighted[0] = id_area
+        areas_q_a[id_area].config(areas_q_a[id_area], bg=COLOR_HIGHLIGHT)
+    else:
+        id_area_quick_access_highlighted[0] = id_area
+        areas_q_a[id_area].config(bg=COLOR_HIGHLIGHT)
+
+
+def binding_btns_of_group(idx_group, idx_element_in_list, areas_q_a):
     """Подпрограмма создает функции для кнопок группы, которые в данный момент открыты на экране"""
 
     def hide_highlighted_wire(hl_wire_):
@@ -44,21 +58,22 @@ def binding_btns_of_group(idx_group, idx_element_in_list):
     def binding_btns_of_other(idx_elem_in_list, hl_wire):
         pass
 
-    global element_highlighted, flag_quick_frame_highlighted
+    global element_highlighted, id_area_quick_access_highlighted
 
     if element_highlighted[0].__class__.__name__ == 'Wire':
         highlighted_wire = element_highlighted[0]
         if idx_group == 0:
             binding_btns_of_resistive_elements(idx_element_in_list, highlighted_wire)
-
         elif idx_group == 1:
             binding_btns_of_sources(idx_element_in_list, highlighted_wire)
         elif idx_group == 2:
             binding_btns_of_nonlinear_elements(idx_element_in_list, highlighted_wire)
         elif idx_group == 3:
             binding_btns_of_other(idx_element_in_list, highlighted_wire)
-    elif flag_quick_frame_highlighted:
+    elif id_area_quick_access_highlighted[0] is not None:
         pass
+
+
 
 
 def binding_clamps_for_making_wires(canvas, wires, clamps):
@@ -244,7 +259,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
 moving_wire_line = None
 element_highlighted = [None]
-flag_quick_frame_highlighted = False
+id_area_quick_access_highlighted = [None]
 flag_moving_line_created = False
 
 WIRES = []

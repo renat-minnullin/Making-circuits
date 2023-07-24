@@ -137,66 +137,91 @@ def make_frames_info(width_frame, height_string):
     frame_info = tk.Frame(bg=COLOR_BG_INFO_FRAME, width=width_frame)
     frame_info.grid(row=0, column=0, sticky='ns')
     btn_run_circuit = make_frame_info_circuit(frame_info, width_frame, height_string,
-                                                COLOR_BG_INFO_FRAME, COLOR_TEXT)
+                                              COLOR_BG_INFO_FRAME, COLOR_TEXT)
     make_frame_info_element(frame_info, width_frame, height_string, COLOR_BG_INFO_FRAME, COLOR_TEXT)
 
     return btn_run_circuit
 
 
 def make_frames_workspace(window, list_names_of_groups_elements, list_elements_by_groups, width_library,
-                          width_workspace, height_workspace, width_quick_access, height_quick_access):
+                          width_workspace, height_workspace, width_quick_access, height_quick_access,
+                          min_width_one_area_quick_access, ):
     """Подпрограмма для создания рамок: рабочей области зажимов, области быстрого доступа, области библиотеки элементов и запуска их"""
 
-    def make_frame_quick_access(frame_wrksp, width_quick_access_, height_quick_access_, radius_clamp_, indent_,
+    def make_frame_quick_access(frame_wrksp, width_quick_access_, height_quick_access_,
+                                min_width_one_area_quick_access_,
                                 col_bg_info_frame, col_frame_outline, col_clamps_outline,
                                 col_bg_workspace):
         """Подпрограмма создает область сверху области зажимов, на которой изображены элементы быстрого доступа; настраивает контакт с ними"""
 
-        def calculating_sizes_and_count_areas(width_quick_access_x, height_quick_access_x, radius_clamp_x,
-                                              indent_x):
+        def calculating_sizes_and_count_areas(width_quick_access_x, height_quick_access_x,
+                                              min_width_one_area_quick_access_x):
             """Вычисление количества и размеров областей, в которых будут отображаться элементы быстрого доступа"""
             from math import floor
 
-            width_ar = 2 * (indent_x + radius_clamp_x)
+            width_ar = width_quick_access_x
             height_ar = height_quick_access_x
-            indent_between_ars = 2 * (indent_x + radius_clamp_x)
-            count_ars = floor((width_quick_access_x - indent_between_ars) / (width_ar + indent_between_ars))
-            return count_ars, width_ar, height_ar, indent_between_ars
+            count_ars = 0
+            while count_ars < 10 and width_ar > min_width_one_area_quick_access_x:
+                count_ars += 1
+                width_ar = width_quick_access_x / count_ars - 4  # 4 - это попытка уменьшить разрыв между крайним правым и библиотекой элементов
 
-        def make_areas(frame_qck_acs, count_ars, width_ar, height_ar, intend_between_ars, col_clamps_outline_x,
+            return count_ars, width_ar, height_ar
+
+        def make_areas(frame_qck_acs, count_ars, width_ar, height_ar, col_clamps_outline_x,
                        col_bg_workspace_x):
             """Подпрограмма создает максимально возможное количество областей"""
 
-            def make_one_area(frame_q_a, width, height, intend_between, areas_q_a, idx, col_clamps_outline_xx,
+            def make_one_area(frame_q_a, width, height, areas_q_a, id_area, col_clamps_outline_xx,
                               col_bg_workspace_xx):
                 """Подпрограмма создает одну область быстрого нажатия"""
-                areas_q_a[idx] = tk.Canvas(frame_q_a, bg=col_bg_workspace_xx, width=width, height=height,
-                                           highlightbackground=col_clamps_outline_xx)
-                areas_q_a[idx].grid(row=0, column=idx, padx=intend_between / 2)
+                from options_visualization import COLOR_TEXT
+                areas_q_a[id_area] = tk.Canvas(frame_q_a, bg=col_bg_workspace_xx, width=width, height=height,
+                                               highlightbackground=col_clamps_outline_xx)
+                areas_q_a[id_area].grid(row=0, column=id_area)
+
+                if id_area == 9:
+                    areas_q_a[id_area].create_text(width, height, text=str(0), anchor='se', fill=COLOR_TEXT)
+                else:
+                    areas_q_a[id_area].create_text(width, height, text=str(id_area + 1), anchor='se', fill=COLOR_TEXT)
 
             areas_quick_access = [''] * count_ars
 
-            for idx_area in range(count_ars):
-                make_one_area(frame_qck_acs, width_ar, height_ar, intend_between_ars, areas_quick_access, idx_area,
+            for index_area in range(count_ars):
+                make_one_area(frame_qck_acs, width_ar, height_ar, areas_quick_access, index_area,
                               col_clamps_outline_x, col_bg_workspace_x)
+            return areas_quick_access
 
-        def binding_areas():
-            pass
+        def binding_areas_to_exchange_color_for_click(count_ars, areas_quick_access):
+            """Подпрограмма запускает забиндивание для каждой области быстрого доступа"""
+
+            def bind_one_area(id_area, areas_q_a):
+                def click_on_area(id_area_, areas_q_a_):
+
+                    from make_circuit_by_user import bind_areas_of_quick_access_exchange_color
+                    bind_areas_of_quick_access_exchange_color(id_area_, areas_q_a_)
+
+                areas_q_a[id_area].bind('<Button-1>',
+                                        lambda id_area_: click_on_area(id_area, areas_q_a))
+
+            for index_area in range(count_ars):
+                bind_one_area(index_area, areas_quick_access)
 
         frame_quick_access = tk.Frame(frame_wrksp, bg=col_bg_info_frame, highlightthickness=1,
                                       highlightbackground=col_frame_outline)
         frame_quick_access.grid(row=0, column=0, sticky='we')
 
-        count_areas, width_area, height_area, intend_between_areas = calculating_sizes_and_count_areas(
-            width_quick_access_, height_quick_access_, radius_clamp_, indent_)
+        count_areas, width_area, height_area = calculating_sizes_and_count_areas(
+            width_quick_access_, height_quick_access_, min_width_one_area_quick_access_)
         if count_areas == 0:
-            print(
+            exit(
                 'Фатальная ошибка построения архитектуры! Количество областей в рамке быстрого доступа равно нулю!')
         else:
-            make_areas(frame_quick_access, count_areas, width_area, height_area, intend_between_areas,
-                       col_clamps_outline, col_bg_workspace)
-            binding_areas()
+            areas_canvas_quick_access = make_areas(frame_quick_access, count_areas, width_area, height_area,
 
+                                                   col_clamps_outline, col_bg_workspace)
+            binding_areas_to_exchange_color_for_click(count_areas, areas_canvas_quick_access)
+        return areas_canvas_quick_access
     def make_workspace_for_clamping(frame_wrksp, width_workspace_, height_workspace_, radius_clamp_, indent_,
                                     col_bg_workspace,
                                     col_clamps_fill,
@@ -229,36 +254,36 @@ def make_frames_workspace(window, list_names_of_groups_elements, list_elements_b
 
         return clamps_, workspace_
 
-    def make_frame_elements_library(frame_wrksp, list_names_of_groups, list_elements_groups, width_library_,
+    def make_frame_elements_library(frame_wrksp, list_names_of_groups, list_elements_groups, areas_canvas_quick_access, width_library_,
                                     col_bg_info_frame):
         """Подпрограмма создает рамку для библиотеки элементов"""
 
-        def selected_group(btns_elems_group, list_names_of_groups_x, list_elements_groups_x, width_libr_x):
+        def selected_group(btns_elems_group, list_names_of_groups_x, list_elements_groups_x, areas_quick_access, width_libr_x):
             """Подпрограмма отзывается на выбор группы из списка комбобокса"""
 
-            def making_buttons_element_of_selected_group(index_group, btns, list_elements_groups_xx, width_libr_xx):
+            def making_buttons_element_of_selected_group(index_group, btns, list_elements_groups_xx, areas_q_a, width_libr_xx):
                 """Подпрограмма создает кнопки с привязкой к элементам определенной группы"""
 
-                def bind_one_btn(index_group_, index_element_in_list_):
+                def bind_one_btn(index_group_, index_element_in_list_, areas_q_a_):
                     """Подпрограмма не несет явного смысла, однако она позволяет переводить index_element_in_list в
                     область локальную, из-за чего в файл make_circuit_by_user переносится реальный индекс, а не последний"""
 
-                    def click_on_button_element(idx_group, idx_element):
+                    def click_on_button_element(idx_group, idx_element, areas):
                         from make_circuit_by_user import binding_btns_of_group
-                        binding_btns_of_group(idx_group, idx_element)
+                        binding_btns_of_group(idx_group, idx_element, areas)
 
                     btns[index_element_in_list_] = tk.Button(frame_library_elements,
                                                              text=list_elements_groups_xx[index_group_][
                                                                  index_element_in_list_],
                                                              width=width_libr_xx // 10,
                                                              command=lambda: click_on_button_element(index_group_,
-                                                                                                     index_element_in_list_))
+                                                                                                     index_element_in_list_, areas_q_a_))
 
                 count_element_in_group = len(list_elements_groups_xx[index_group])
                 for index_element_in_list in range(count_element_in_group):
                     btns.append([''])
                 for index_element_in_list in range(count_element_in_group):
-                    bind_one_btn(index_group, index_element_in_list)
+                    bind_one_btn(index_group, index_element_in_list, areas_q_a)
 
                     btns[index_element_in_list].grid(row=index_element_in_list + 1,
                                                      column=0)  # +1 необходим, чтобы пропустить combobox
@@ -272,7 +297,7 @@ def make_frames_workspace(window, list_names_of_groups_elements, list_elements_b
             delete_old_btns(btns_elems_group)
             selection = cmbbx_list_headings_groups.get()
             index_selected_group = list_names_of_groups_x.index(selection)
-            making_buttons_element_of_selected_group(index_selected_group, btns_elems_group, list_elements_groups_x,
+            making_buttons_element_of_selected_group(index_selected_group, btns_elems_group, list_elements_groups_x, areas_quick_access,
                                                      width_libr_x)
 
         frame_library_elements = tk.Frame(frame_wrksp, bg=col_bg_info_frame)
@@ -285,11 +310,11 @@ def make_frames_workspace(window, list_names_of_groups_elements, list_elements_b
         cmbbx_list_headings_groups.grid(row=0, column=0, sticky='ew')
         cmbbx_list_headings_groups.bind('<<ComboboxSelected>>',
                                         lambda event: selected_group(btns_elements_of_group, list_names_of_groups,
-                                                                     list_elements_groups, width_library_))
+                                                                     list_elements_groups, areas_canvas_quick_access, width_library_))
 
         default_index = 0  # индекс группы элементов, которая выбирается при включении программы
         cmbbx_list_headings_groups.current(default_index)
-        selected_group(btns_elements_of_group, list_names_of_groups, list_elements_groups, width_library_)
+        selected_group(btns_elements_of_group, list_names_of_groups, list_elements_groups, areas_canvas_quick_access, width_library_)
 
     from math import floor
     from options_visualization import RADIUS_CLAMP, INDENT
@@ -298,7 +323,7 @@ def make_frames_workspace(window, list_names_of_groups_elements, list_elements_b
     frame_workspace = tk.Frame(window)
     frame_workspace.grid(row=0, column=1, sticky='ns')
 
-    make_frame_quick_access(frame_workspace, width_quick_access, height_quick_access, RADIUS_CLAMP, INDENT,
+    list_areas_canvas_quick_access = make_frame_quick_access(frame_workspace, width_quick_access, height_quick_access, min_width_one_area_quick_access,
                             COLOR_BG_INFO_FRAME, COLOR_FRAME_OUTLINE, COLOR_CLAMPS_OUTLINE,
                             COLOR_BG_WORKSPACE)
 
@@ -313,7 +338,7 @@ def make_frames_workspace(window, list_names_of_groups_elements, list_elements_b
                                                     COLOR_CLAMPS_OUTLINE_PUSHED,
                                                     COLOR_FRAME_OUTLINE)
 
-    make_frame_elements_library(frame_workspace, list_names_of_groups_elements, list_elements_by_groups,
+    make_frame_elements_library(frame_workspace, list_names_of_groups_elements, list_elements_by_groups, list_areas_canvas_quick_access,
                                 width_library, COLOR_BG_INFO_FRAME)
 
     return clamps, workspace
@@ -342,6 +367,7 @@ WIDTH_WORKSPACE = WIDTH_WINDOW - WIDTH_LIBRARY - WIDTH_INFO_FRAME * 7.65  # по
 
 WIDTH_QUICK_ACCESS = WIDTH_WORKSPACE
 HEIGHT_QUICK_ACCESS = 50
+MIN_WIDTH_ONE_AREA_QUICK_ACCESS = 80
 
 HEIGHT_WORKSPACE = HEIGHT_WINDOW - HEIGHT_QUICK_ACCESS - 3  # небольшой отступ от нижней стороны
 
@@ -353,4 +379,4 @@ CLAMPS, WORKSPACE = make_frames_workspace(root,
                                           HEIGHT_WORKSPACE,
                                           WIDTH_QUICK_ACCESS,
                                           HEIGHT_QUICK_ACCESS,
-                                          )
+                                          MIN_WIDTH_ONE_AREA_QUICK_ACCESS)
