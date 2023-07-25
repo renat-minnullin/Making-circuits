@@ -50,6 +50,8 @@ class AreaQuickAccess(tk.Canvas):
         self.color_highlight = col_highlight
         self.color_text = col_text
         self.color_outline = col_outline
+        self.own_element = None
+        self.own_list_elements_of_the_class = []
         self.own_elements_ids = []
         if self.id_in_list == 9:
             self.number_btn = 0
@@ -59,6 +61,8 @@ class AreaQuickAccess(tk.Canvas):
         self.create_text(self.width, self.height, text=str(self.number_btn), anchor='se', fill=self.color_text)
 
     def delete_own_element(self):
+        self.own_element = None
+        self.own_list_elements_of_the_class = []
         for id_piece_of_element in self.own_elements_ids:
             self.delete(id_piece_of_element)
 
@@ -240,7 +244,6 @@ def make_frames_workspace(window, list_names_of_groups_elements, list_elements_b
 
                                                    col_clamps_outline, col_bg_workspace)
             binding_areas_to_exchange_color_for_click(count_areas, areas_canvas_quick_access)
-        return areas_canvas_quick_access
 
     def make_workspace_for_clamping(frame_wrksp, width_workspace_, height_workspace_, radius_clamp_, indent_,
                                     col_bg_workspace,

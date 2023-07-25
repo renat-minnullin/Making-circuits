@@ -43,6 +43,8 @@ def binding_btns_of_group(idx_group, idx_element_in_list):
             list_elements_of_the_class.append(element_of_the_class)
             bind_element_to_click(element_of_the_class, list_elements_of_the_class)
 
+            bind_all_possibilities_btn_of_group(highlighted_wire_x, Class_this_element_x, list_elements_of_the_this_class_x)
+        from make_display import root
         from options_visualization import COLOR_BG_WORKSPACE, COLOR_LINES, WIDTH_LINES
         global element_highlighted, area_quick_access_highlighted
         if element_highlighted[0].__class__.__name__ == 'Wire':
@@ -55,9 +57,12 @@ def binding_btns_of_group(idx_group, idx_element_in_list):
             area = area_quick_access_highlighted[0]
             if area.own_elements_ids:
                 area.delete_own_element()
-            area.config(area, bg=area.color_bg)
+            area.own_element = Class_this_element
+            area.own_list_elements_of_the_class = list_elements_of_the_this_class
             area.own_elements_ids = drawing_function(area, [0, area.height // 2], [area.width, area.height // 2],
                                                      area.width, WIDTH_LINES, COLOR_LINES)
+            area.config(area, bg=area.color_bg)
+            root.bind(str(area.number_btn), lambda event: bind_all_possibilities_btn_of_group(Class_this_element, list_elements_of_the_this_class, drawing_function))
 
     def binding_btns_of_resistive_elements(idx_elem_in_list):
         """Подпрограмма создает функции для кнопок группы Резистивные элементы (индекс группы 0)"""
