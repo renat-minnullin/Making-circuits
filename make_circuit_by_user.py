@@ -23,8 +23,9 @@ def bind_areas_of_quick_access_exchange_color(clicked_area_q_a):
 def binding_btns_of_group(idx_group, idx_element_in_list):
     """Подпрограмма создает функции для кнопок группы, которые в данный момент открыты на экране"""
 
-    def working_out_element_of_group(Class_this_element, list_elements_of_the_this_class, drawing_function):
+    def bind_all_possibilities_btn_of_group(Class_this_element, list_elements_of_the_this_class, drawing_function):
         """Подпрограмма отрабатывает все действия, которые необходимо выполнять при нажатии на кнопку из разных положений"""
+
         def hide_highlighted_wire(hl_wire_):
             """Подпрограмма скрывает провод, на который крепится элемент"""
             canvas = hl_wire_.canvas
@@ -45,10 +46,11 @@ def binding_btns_of_group(idx_group, idx_element_in_list):
         from options_visualization import COLOR_BG_WORKSPACE, COLOR_LINES, WIDTH_LINES
         global element_highlighted, area_quick_access_highlighted
         if element_highlighted[0].__class__.__name__ == 'Wire':
-
             highlighted_wire = element_highlighted[0]
-            hide_highlighted_wire(highlighted_wire)
-            bind_one_btn(highlighted_wire, Class_this_element, list_elements_of_the_this_class)
+            if highlighted_wire.canvas.itemcget(highlighted_wire.elements_ids[0], 'state') == 'normal':
+                hide_highlighted_wire(highlighted_wire)
+                bind_one_btn(highlighted_wire, Class_this_element, list_elements_of_the_this_class)
+
         elif area_quick_access_highlighted[0]:
             area = area_quick_access_highlighted[0]
             if area.own_elements_ids:
@@ -63,17 +65,17 @@ def binding_btns_of_group(idx_group, idx_element_in_list):
         if idx_elem_in_list == 0:
             global RESISTORS
             from drawing_elements import draw_resistor
-            working_out_element_of_group(Resistor, RESISTORS, draw_resistor)
+            bind_all_possibilities_btn_of_group(Resistor, RESISTORS, draw_resistor)
 
         elif idx_elem_in_list == 1:
             global INDUCTOR_COILS
             from drawing_elements import draw_inductor_coil
-            working_out_element_of_group(InductorCoil, INDUCTOR_COILS, draw_inductor_coil)
+            bind_all_possibilities_btn_of_group(InductorCoil, INDUCTOR_COILS, draw_inductor_coil)
 
         elif idx_elem_in_list == 2:
             global CAPACITORS
             from drawing_elements import draw_capacitor
-            working_out_element_of_group(Capacitor, CAPACITORS, draw_capacitor)
+            bind_all_possibilities_btn_of_group(Capacitor, CAPACITORS, draw_capacitor)
 
     def binding_btns_of_sources(idx_elem_in_list, hl_wire):
         pass
@@ -126,7 +128,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
             def delete_moving_line(event):
                 """Подпрограмма останавливает рисование провода и удаляет линию"""
                 from input_and_output_buffer import input_id_moving_line
-                global moving_wire_line, flag_moving_line_created
+                global moving_wire_line
                 moving_wire_line = input_id_moving_line()
 
                 canvas.delete(moving_wire_line)
@@ -135,7 +137,6 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                 moving_wire_line = None
                 canvas.itemconfig(clicked_clamp.elements_ids[0], outline=clicked_clamp.color_outline)
                 delete_acceptable_clamps()
-                flag_moving_line_created = False
 
             def add_numbers_clamped_clamps(start_row, start_col, end_row, end_col):
                 """Подпрограмма записывает данные зажатых зажимов"""
@@ -210,8 +211,8 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
                 from make_display import root
                 from input_and_output_buffer import output_id_moving_line, output_r_c_start_clamp
-                global moving_wire_line, flag_moving_line_created
-                flag_moving_line_created = True
+                global moving_wire_line
+
                 make_acceptable_clamp_highlighting(clamp_start_)
                 moving_wire_line = canvas.create_line(clamp_start_.x_center_circle,
                                                       clamp_start_.y_center_circle,
@@ -277,7 +278,6 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 moving_wire_line = None
 element_highlighted = [None]
 area_quick_access_highlighted = [None]
-flag_moving_line_created = False
 
 WIRES = []
 RESISTORS = []

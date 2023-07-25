@@ -35,7 +35,7 @@ class Wire(Element):
         self.elements_ids = draw_wire(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
                                       self.width_lines,
                                       self.color_lines)
-
+        self.canvas.itemconfig(self.elements_ids[0], state='normal')
     def exchange_color(self, color):
         """Подпрограмма заменяет цвет всех частей элемента"""
         for id_piece_of_element in self.elements_ids:
