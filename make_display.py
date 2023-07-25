@@ -40,6 +40,71 @@ class Clamp:
                                                      width=self.width_outline)]
 
 
+class FrameInfoElement(tk.LabelFrame):
+    def __init__(self, main_frame, col_bg_info_frame, col_text, width, height):
+        super().__init__(main_frame, text='Параметры элемента', bg=col_bg_info_frame, fg=col_text)
+
+        def make_one_ceil_parameter_information(name_parameter, row, col):
+            frame_of_parameter = tk.Frame(self)
+            frame_of_parameter.grid(row=row, column=col, sticky='e')
+            parameter_label = tk.Label(frame_of_parameter, text=name_parameter, bg=self.color_bg, fg=self.color_text)
+            parameter_label.grid(row=0, column=0)
+            state_ent = 'disable'
+            effective_value_str = tk.StringVar(self, value='0')
+            entry_effective_value = tk.Entry(frame_of_parameter, textvariable=effective_value_str,
+                                             state=state_ent, width=self.count_numbers_in_entry)
+            entry_effective_value.grid(row=0, column=1)
+            tk.Label(frame_of_parameter, text='∠', bg=col_bg_info_frame, fg=col_text).grid(row=0, column=2)
+            angle_str = tk.StringVar(self, value='0')
+            entry_angle = tk.Entry(frame_of_parameter, textvariable=angle_str, state=state_ent,
+                                   width=self.count_numbers_in_entry)
+            entry_angle.grid(row=0, column=3)
+            return frame_of_parameter, parameter_label, state_ent, effective_value_str, entry_effective_value, angle_str, entry_angle
+
+        self.name_element = '----'
+        self.color_bg = col_bg_info_frame
+        self.color_text = col_text
+        self.label_name_element = tk.Label(self, width=width, height=height,
+                                           text=self.name_element,
+                                           bg=col_bg_info_frame,
+                                           fg=col_text)
+        self.label_name_element.grid(row=0, column=0, stick='w', columnspan=2)
+
+        self.count_numbers_in_entry = 8
+
+        self.frame_current, self.label_current, \
+            self.state_ent_cur, \
+            self.current_effective_value_str, \
+            self.entry_current_effective_value, \
+            self.current_angle_str, \
+            self.entry_current_angle = make_one_ceil_parameter_information('I', 1, 0)
+
+        self.frame_resistance, self.label_resistance, \
+            self.state_ent_res, \
+            self.resistance_effective_value_str, \
+            self.entry_resistance_effective_value, \
+            self.resistance_angle_str, \
+            self.entry_resistance_angle = make_one_ceil_parameter_information('Z', 1, 1)
+
+        self.frame_voltage, self.label_voltage, \
+            self.state_ent_vol, \
+            self.voltage_effective_value_str, \
+            self.entry_voltage_effective_value, \
+            self.voltage_angle_str, \
+            self.entry_voltage_angle = make_one_ceil_parameter_information('U', 2, 0)
+
+        self.frame_conductivity, self.label_conductivity, \
+            self.state_ent_con, \
+            self.conductivity_effective_value_str, \
+            self.entry_conductivity_effective_value, \
+            self.conductivity_angle_str, \
+            self.entry_conductivity_angle = make_one_ceil_parameter_information('Y', 2, 1)
+
+    def exchange_name_element(self, name_element):
+        self.name_element = name_element
+        self.label_name_element.config(text=self.name_element)
+
+
 class AreaQuickAccess(tk.Canvas):
     def __init__(self, frame, width, height, id_in_list, col_bg, col_highlight, col_text, col_outline):
         super().__init__(frame, bg=col_bg, height=height, width=width, highlightbackground=col_outline)
@@ -151,23 +216,20 @@ def make_frames_info(width_frame, height_string):
     def make_frame_info_element(main_frame, width, height, col_bg_info_frame, col_text):
         """Подпрограмма создает рамку под рамкой информации о цепи (СТОЛБЕЦ 0, РЯД 1), в которой будет появляться
         информация об элементе, на который в данный момент направлен курсор"""
-
-        frame_info_element = tk.LabelFrame(main_frame, text='Параметры элемента', bg=col_bg_info_frame, fg=col_text)
+        frame_info_element = FrameInfoElement(main_frame, col_bg_info_frame, col_text, width, height)
         frame_info_element.grid(column=0, row=1, stick='w', padx=5)
-        label_name_element = tk.Label(frame_info_element, width=width, height=height,
-                                      text='Элемент: Resistor',
-                                      bg=col_bg_info_frame,
-                                      fg=col_text)
-        label_name_element.grid(row=0, column=0, stick='w', columnspan=2)
+
+        return frame_info_element
 
     from options_visualization import COLOR_BG_INFO_FRAME, COLOR_TEXT
     frame_info = tk.Frame(bg=COLOR_BG_INFO_FRAME, width=width_frame)
     frame_info.grid(row=0, column=0, sticky='ns')
     btn_run_circuit = make_frame_info_circuit(frame_info, width_frame, height_string,
                                               COLOR_BG_INFO_FRAME, COLOR_TEXT)
-    make_frame_info_element(frame_info, width_frame, height_string, COLOR_BG_INFO_FRAME, COLOR_TEXT)
+    frame_info_about_element = make_frame_info_element(frame_info, width_frame, height_string, COLOR_BG_INFO_FRAME,
+                                                       COLOR_TEXT)
 
-    return btn_run_circuit
+    return btn_run_circuit, frame_info_about_element
 
 
 def make_frames_workspace(window, list_names_of_groups_elements, list_elements_by_groups, width_library,
@@ -389,7 +451,7 @@ MAX_COUNT_SIMBOLS_LIST_NGE = ''
 
 WIDTH_INFO_FRAME = 40  # Количество символов в строке рамки информации
 HEIGHT_STRING_INFO_FRAME = 1
-BUTTON_RUN = make_frames_info(WIDTH_INFO_FRAME, HEIGHT_STRING_INFO_FRAME)
+BUTTON_RUN, FRAME_INFO_ABOUT_ELEMENT = make_frames_info(WIDTH_INFO_FRAME, HEIGHT_STRING_INFO_FRAME)
 
 WIDTH_LIBRARY = 200  # ПОКА ЧТО ВЫБРАНА НАУГАД
 HEIGHT_LIBRARY = HEIGHT_WINDOW

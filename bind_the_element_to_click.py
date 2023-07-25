@@ -67,6 +67,7 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
                 element_highlighted[0] = None
 
         from options_visualization import COLOR_BG_WORKSPACE
+        from make_display import FRAME_INFO_ABOUT_ELEMENT
         from make_circuit_by_user import element_highlighted, area_quick_access_highlighted, moving_wire_line
         if moving_wire_line is None:
             if area_quick_access_highlighted[0]:
@@ -75,7 +76,13 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
 
             elif element_highlighted[0]:
                 element_highlighted[0].exchange_color(element_highlighted[0].color_lines)
-
+            '''
+            label_name_element = tk.Label(FRAME_INFO_ABOUT_ELEMENT, width=width, height=height,
+                                          text='Элемент: Resistor',
+                                          bg=col_bg_info_frame,
+                                          fg=col_text)
+            label_name_element.grid(row=0, column=0, stick='w', columnspan=2)
+            '''
             element.exchange_color(element.color_highlight)
             element_highlighted[0] = element
             root.bind('<Delete>', delete_highlighted_element)
