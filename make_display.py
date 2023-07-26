@@ -41,25 +41,46 @@ class Clamp:
 
 
 class FrameInfoElement(tk.LabelFrame):
+    """Данный класс отвечает за все преобразования, происходящие с рамкой информации в ходе работы. Для упрощения кода, была
+    принята система индексации параметров, входящих и выходящих в рамку:
+    0 - сила тока
+    1 - напряжение
+    2 - сопротивление
+    3 - проводимость"""
+
     def __init__(self, main_frame, col_bg_info_frame, col_text, width, height):
         super().__init__(main_frame, text='Параметры элемента', bg=col_bg_info_frame, fg=col_text)
 
-        def make_one_ceil_parameter_information(name_parameter, row, col):
-            frame_of_parameter = tk.Frame(self)
-            frame_of_parameter.grid(row=row, column=col, sticky='e')
-            parameter_label = tk.Label(frame_of_parameter, text=name_parameter, bg=self.color_bg, fg=self.color_text)
+        def make_widgets_of_one_parameter(frame_of_group, name_parameter, tuple_row_col, unit_of_measurement,
+                                          state_ent):
+            """Подпрограмма создает одну ячейку, включающую в себя:
+            -Название параметра
+            -Вводная ячейка для действующего значения
+            -Знак угла
+            -Вводная ячейка для угла
+            -Знак градуса
+            -Единица измерения"""
+            row = tuple_row_col[0]
+            col = tuple_row_col[1]
+            frame_of_one_parameter = tk.Frame(frame_of_group)
+            frame_of_one_parameter.grid(row=row, column=col, sticky='e')
+            parameter_label = tk.Label(frame_of_one_parameter, text=name_parameter, bg=self.color_bg,
+                                       fg=self.color_text)
             parameter_label.grid(row=0, column=0)
-            state_ent = 'disable'
-            effective_value_str = tk.StringVar(self, value='0')
-            entry_effective_value = tk.Entry(frame_of_parameter, textvariable=effective_value_str,
-                                             state=state_ent, width=self.count_numbers_in_entry)
-            entry_effective_value.grid(row=0, column=1)
-            tk.Label(frame_of_parameter, text='∠', bg=col_bg_info_frame, fg=col_text).grid(row=0, column=2)
-            angle_str = tk.StringVar(self, value='0')
-            entry_angle = tk.Entry(frame_of_parameter, textvariable=angle_str, state=state_ent,
+
+            module_str = tk.StringVar(self, value=0.0)
+            entry_module = tk.Entry(frame_of_one_parameter, textvariable=module_str,
+                                    state=state_ent, width=self.count_numbers_in_entry)
+            entry_module.grid(row=0, column=1)
+            tk.Label(frame_of_one_parameter, text='∠', bg=col_bg_info_frame, fg=col_text).grid(row=0, column=2)
+            angle_str = tk.StringVar(self, value=0.0)
+            entry_angle = tk.Entry(frame_of_one_parameter, textvariable=angle_str, state=state_ent,
                                    width=self.count_numbers_in_entry)
             entry_angle.grid(row=0, column=3)
-            return frame_of_parameter, parameter_label, state_ent, effective_value_str, entry_effective_value, angle_str, entry_angle
+            tk.Label(frame_of_one_parameter, text='°', bg=col_bg_info_frame, fg=col_text).grid(row=0, column=4)
+            tk.Label(frame_of_one_parameter, text=unit_of_measurement, bg=col_bg_info_frame, fg=col_text).grid(row=0,
+                                                                                                               column=5)
+            return frame_of_one_parameter, parameter_label, module_str, entry_module, angle_str, entry_angle
 
         self.name_element = '----'
         self.color_bg = col_bg_info_frame
@@ -68,41 +89,91 @@ class FrameInfoElement(tk.LabelFrame):
                                            text=self.name_element,
                                            bg=col_bg_info_frame,
                                            fg=col_text)
-        self.label_name_element.grid(row=0, column=0, stick='w', columnspan=2)
+        self.label_name_element.grid(row=0, column=0, columnspan=2)
+        self.count_numbers_in_entry = 6
+        self.frame_group_of_cur_vol = tk.Frame(self, bg=self.color_bg)
+        self.frame_group_of_cur_vol.grid(row=1, column=0)
 
-        self.count_numbers_in_entry = 8
+        self.frame_group_of_res_con = tk.Frame(self, bg=self.color_bg)
+        self.frame_group_of_res_con.grid(row=1, column=1)
 
-        self.frame_current, self.label_current, \
-            self.state_ent_cur, \
-            self.current_effective_value_str, \
-            self.entry_current_effective_value, \
-            self.current_angle_str, \
-            self.entry_current_angle = make_one_ceil_parameter_information('I', 1, 0)
+        self.count_parameters = 4
+        self.names_parameters = ['I',
+                                 'U',
+                                 'Z',
+                                 'Y']
+        self.tuples_row_col_parameters = [(0, 0),
+                                          (1, 0),
+                                          (0, 1),
+                                          (1, 1), ]
 
-        self.frame_resistance, self.label_resistance, \
-            self.state_ent_res, \
-            self.resistance_effective_value_str, \
-            self.entry_resistance_effective_value, \
-            self.resistance_angle_str, \
-            self.entry_resistance_angle = make_one_ceil_parameter_information('Z', 1, 1)
+        self.units_measurement = ['А',
+                                  'В',
+                                  'Ом',
+                                  'См']
+        self.frames_parameters_in_group = [self.frame_group_of_cur_vol,
+                                           self.frame_group_of_cur_vol,
+                                           self.frame_group_of_res_con,
+                                           self.frame_group_of_res_con]
 
-        self.frame_voltage, self.label_voltage, \
-            self.state_ent_vol, \
-            self.voltage_effective_value_str, \
-            self.entry_voltage_effective_value, \
-            self.voltage_angle_str, \
-            self.entry_voltage_angle = make_one_ceil_parameter_information('U', 2, 0)
+        self.states_entries = ['disabled'] * self.count_parameters
 
-        self.frame_conductivity, self.label_conductivity, \
-            self.state_ent_con, \
-            self.conductivity_effective_value_str, \
-            self.entry_conductivity_effective_value, \
-            self.conductivity_angle_str, \
-            self.entry_conductivity_angle = make_one_ceil_parameter_information('Y', 2, 1)
+        self.frames_parameters = [None] * self.count_parameters
+        self.label_parameters = [None] * self.count_parameters
+        self.modules_parameters = [0.0] * self.count_parameters
+        self.entries_modules = [None] * self.count_parameters
+        self.angles_parameters = [0.0] * self.count_parameters
+        self.entry_angles = [None] * self.count_parameters
+
+        for num_par in range(self.count_parameters):
+            self.frames_parameters[num_par], \
+                self.label_parameters[num_par], \
+                self.modules_parameters[num_par], \
+                self.entries_modules[num_par], \
+                self.angles_parameters[num_par], \
+                self.entry_angles[num_par] = make_widgets_of_one_parameter(self.frames_parameters_in_group[num_par],
+                                                                           self.names_parameters[num_par],
+                                                                           self.tuples_row_col_parameters[num_par],
+                                                                           self.units_measurement[num_par],
+                                                                           self.states_entries[num_par])
 
     def exchange_name_element(self, name_element):
+        """Метод изменяет имя элемента на рамке"""
         self.name_element = name_element
         self.label_name_element.config(text=self.name_element)
+
+    def reload_state_entries(self, accesses_parameters):
+        """Метод обновляет состояния всех Entry"""
+
+        def exchange_state(entry_module, entry_angle, state, access):
+            if access:
+                state = 'normal'
+
+            else:
+                state = 'disabled'
+            entry_module.config(state=state)
+            entry_angle.config(state=state)
+
+
+        for num_par in range(self.count_parameters):
+            exchange_state(self.entries_modules[num_par], self.entry_angles[num_par], self.states_entries[num_par],
+                           accesses_parameters[num_par])
+
+    def reload_values_of_parameters(self, parameters):
+        """Метод обновляет значения всех параметров на информационной панели"""
+        def set_conversion_to_exponential_form_with_phase(complex_arifm_value, module_var, angle_var):
+            """Подпрограмма преобразует арифметическое представление в полярное"""
+            from math import degrees
+            from cmath import polar
+            complex_polar_value = polar(complex_arifm_value)
+            module_of_parameter = complex_polar_value[0]
+            angle_of_parameter = degrees(complex_polar_value[1])
+            module_var.set(module_of_parameter)
+            angle_var.set(angle_of_parameter)
+
+        for num_per in range(self.count_parameters):
+            set_conversion_to_exponential_form_with_phase(parameters[num_per], self.modules_parameters[num_per],
+                                                          self.angles_parameters[num_per])
 
 
 class AreaQuickAccess(tk.Canvas):

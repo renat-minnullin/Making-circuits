@@ -76,13 +76,13 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
 
             elif element_highlighted[0]:
                 element_highlighted[0].exchange_color(element_highlighted[0].color_lines)
-            '''
-            label_name_element = tk.Label(FRAME_INFO_ABOUT_ELEMENT, width=width, height=height,
-                                          text='Элемент: Resistor',
-                                          bg=col_bg_info_frame,
-                                          fg=col_text)
-            label_name_element.grid(row=0, column=0, stick='w', columnspan=2)
-            '''
+
+            frame_info = FRAME_INFO_ABOUT_ELEMENT
+            frame_info.exchange_name_element(element.name)
+
+            frame_info.reload_state_entries(element.accesses_to_change)
+            frame_info.reload_values_of_parameters(element.parameters)
+
             element.exchange_color(element.color_highlight)
             element_highlighted[0] = element
             root.bind('<Delete>', delete_highlighted_element)

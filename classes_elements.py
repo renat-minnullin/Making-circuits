@@ -25,10 +25,16 @@ class Wire(Element):
 
         self.elements_ids = []
 
-        self.resistance = 0
-        self.conductivity = float('inf')
-        self.current_strength = 0
-        self.voltage = 0
+        self.parameters = [0,
+                           0,
+                           0,
+                           float('inf')]
+
+        self.accesses_to_change = [True,
+                                   False,
+                                   False,
+                                   False]
+
 
     def draw(self):
         from drawing_elements import draw_wire
@@ -36,6 +42,7 @@ class Wire(Element):
                                       self.width_lines,
                                       self.color_lines)
         self.canvas.itemconfig(self.elements_ids[0], state='normal')
+
     def exchange_color(self, color):
         """Подпрограмма заменяет цвет всех частей элемента"""
         for id_piece_of_element in self.elements_ids:
@@ -113,6 +120,10 @@ class Resistor(ElementStandardCircuit):
                          col_highlight,
                          col_lines, own_wire)
         self.name = 'Резистор'
+        self.accesses_to_change = [True,
+                                   True,
+                                   True,
+                                   True]
 
     def draw(self):
         from drawing_elements import draw_resistor
@@ -133,6 +144,10 @@ class Capacitor(ElementStandardCircuit):
                          col_highlight,
                          col_lines, own_wire)
         self.name = 'Конденсатор'
+        self.accesses_to_change = [True,
+                                   True,
+                                   True,
+                                   True]
 
     def draw(self):
         from drawing_elements import draw_capacitor
@@ -153,6 +168,10 @@ class InductorCoil(ElementStandardCircuit):
                          col_highlight,
                          col_lines, own_wire)
         self.name = 'Катушка индуктивности'
+        self.accesses_to_change = [True,
+                                   True,
+                                   True,
+                                   True]
 
     def draw(self):
         from drawing_elements import draw_inductor_coil
@@ -173,6 +192,10 @@ class SourceEMF(ElementStandardCircuit):
                          col_highlight,
                          col_lines, own_wire)
         self.name = 'Источник ЭДС'
+        self.accesses_to_change = [True,
+                                   True,
+                                   False,
+                                   False]
 
     def draw(self):
         from drawing_elements import draw_source_of_emf
@@ -193,6 +216,10 @@ class SourceCurrent(ElementStandardCircuit):
                          col_highlight,
                          col_lines, own_wire)
         self.name = 'Источник тока'
+        self.accesses_to_change = [True,
+                                   True,
+                                   False,
+                                   False]
 
     def draw(self):
         from drawing_elements import draw_current_source
