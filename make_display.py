@@ -175,7 +175,10 @@ class FrameInfoElement(tk.LabelFrame):
             set_conversion_to_exponential_form_with_phase(parameters[num_per], self.modules_parameters[num_per],
                                                           self.angles_parameters[num_per])
 
-
+    def transition_to_standard_state(self):
+        self.exchange_name_element('----')
+        self.reload_state_entries([False] * self.count_parameters)
+        self.reload_values_of_parameters([0.0] * self.count_parameters)
 class AreaQuickAccess(tk.Canvas):
     def __init__(self, frame, width, height, id_in_list, col_bg, col_highlight, col_text, col_outline):
         super().__init__(frame, bg=col_bg, height=height, width=width, highlightbackground=col_outline)
@@ -353,8 +356,8 @@ def make_frames_workspace(window, list_names_of_groups_elements, list_elements_b
 
             def bind_one_area(id_area, areas_q_a):
                 def click_on_area(clicked_area_):
-                    from make_circuit_by_user import bind_areas_of_quick_access_exchange_color
-                    bind_areas_of_quick_access_exchange_color(clicked_area_)
+                    from make_circuit_by_user import bind_areas_of_quick_access_to_click
+                    bind_areas_of_quick_access_to_click(clicked_area_)
 
                 clicked_area = areas_q_a[id_area]
                 clicked_area.bind('<Button-1>',

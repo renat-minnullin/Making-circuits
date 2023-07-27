@@ -2,7 +2,7 @@ from make_display import CLAMPS, WORKSPACE
 from classes_elements import Wire, Resistor, Capacitor, InductorCoil
 
 
-def bind_areas_of_quick_access_exchange_color(clicked_area_q_a):
+def bind_areas_of_quick_access_to_click(clicked_area_q_a):
     """Подпрограмма биндит область быстрого доступа на нажатие"""
     from options_visualization import COLOR_HIGHLIGHT, COLOR_BG_WORKSPACE
     from make_display import FRAME_INFO_ABOUT_ELEMENT
@@ -15,12 +15,9 @@ def bind_areas_of_quick_access_exchange_color(clicked_area_q_a):
         if area_quick_access_highlighted[0]:
             area_quick_access_highlighted[0].config(bg=COLOR_BG_WORKSPACE)
         frame_info = FRAME_INFO_ABOUT_ELEMENT
-        frame_info.exchange_name_element('----')
-        frame_info.reload_state_entries([False]*frame_info.count_parameters)
-        frame_info.reload_values_of_parameters([0.0]*frame_info.count_parameters)
+        frame_info.transition_to_standard_state()
         area_quick_access_highlighted[0] = clicked_area_q_a
         clicked_area_q_a.config(clicked_area_q_a, bg=COLOR_HIGHLIGHT)
-
 
 
 def binding_btns_of_group(idx_group, idx_element_in_list):
@@ -37,6 +34,7 @@ def binding_btns_of_group(idx_group, idx_element_in_list):
         def bind_one_btn(hl_wire, Class_element, list_elements_of_the_class):
             """Подпрограмма запускает бинд одной кнопки в библиотеке элементов"""
             from bind_the_element_to_click import bind_element_to_click
+            from make_display import FRAME_INFO_ABOUT_ELEMENT
             element_of_the_class = Class_element(hl_wire.canvas, hl_wire.x_start, hl_wire.y_start,
                                                  hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
                                                  hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
@@ -44,9 +42,14 @@ def binding_btns_of_group(idx_group, idx_element_in_list):
                                                  hl_wire.color_lines, hl_wire)
             element_of_the_class.draw()
             list_elements_of_the_class.append(element_of_the_class)
+
+            frame_info = FRAME_INFO_ABOUT_ELEMENT
+            frame_info.transition_to_standard_state()
+
             bind_element_to_click(element_of_the_class, list_elements_of_the_class)
 
-            bind_all_possibilities_btn_of_group(hl_wire, Class_element, list_elements_of_the_class)
+            #bind_all_possibilities_btn_of_group(hl_wire, Class_element, list_elements_of_the_class), если без него норм работает, то удали
+
         from make_display import root
         from options_visualization import COLOR_BG_WORKSPACE, COLOR_LINES, WIDTH_LINES
         global element_highlighted, area_quick_access_highlighted
@@ -65,7 +68,9 @@ def binding_btns_of_group(idx_group, idx_element_in_list):
             area.own_elements_ids = drawing_function(area, [0, area.height // 2], [area.width, area.height // 2],
                                                      area.width, WIDTH_LINES, COLOR_LINES)
             area.config(area, bg=area.color_bg)
-            root.bind(str(area.number_btn), lambda event: bind_all_possibilities_btn_of_group(Class_this_element, list_elements_of_the_this_class, drawing_function))
+            root.bind(str(area.number_btn), lambda event: bind_all_possibilities_btn_of_group(Class_this_element,
+                                                                                              list_elements_of_the_this_class,
+                                                                                              drawing_function))
 
     def binding_btns_of_resistive_elements(idx_elem_in_list):
         """Подпрограмма создает функции для кнопок группы Резистивные элементы (индекс группы 0)"""
