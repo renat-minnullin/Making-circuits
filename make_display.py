@@ -82,6 +82,20 @@ class FrameInfoElement(tk.LabelFrame):
                                                                                                                column=5)
             return frame_of_one_parameter, parameter_label, module_str, entry_module, angle_str, entry_angle
 
+        def save_parameters_in_element():
+            """Подпрограмма отыгрывает нажатие на кнопку сохранения параметров элемента"""
+            def conversion_to_arithmetic_form(module_, angle_):
+                """Подпрограмма переводит из полярной формы в арифметическую"""
+                from cmath import rect
+                from math import radians
+                return rect(float(module_), radians(float(angle_)))
+
+            for num in range(self.count_parameters):
+                module = self.entries_modules[num].get()
+                angle = self.entry_angles[num].get()
+                arithmetic_form = conversion_to_arithmetic_form(module, angle)
+                self.highlighted_element.parameters[num] = arithmetic_form
+
         self.name_element = '----'
         self.color_bg = col_bg_info_frame
         self.color_text = col_text
@@ -137,6 +151,11 @@ class FrameInfoElement(tk.LabelFrame):
                                                                            self.units_measurement[num_par],
                                                                            self.states_entries[num_par])
 
+        self.highlighted_element = None
+        self.btn_save_parameters = tk.Button(self, text='Сохранить параметры', state='disabled',
+                                             command=save_parameters_in_element)
+        self.btn_save_parameters.grid(row=2, column=0, columnspan=2, pady=10)
+
     def exchange_name_element(self, name_element):
         """Метод изменяет имя элемента на рамке"""
         self.name_element = name_element
@@ -154,18 +173,18 @@ class FrameInfoElement(tk.LabelFrame):
             entry_module.config(state=state)
             entry_angle.config(state=state)
 
-
         for num_par in range(self.count_parameters):
             exchange_state(self.entries_modules[num_par], self.entry_angles[num_par], self.states_entries[num_par],
                            accesses_parameters[num_par])
 
     def reload_values_of_parameters(self, parameters):
         """Метод обновляет значения всех параметров на информационной панели"""
-        def set_conversion_to_exponential_form_with_phase(complex_arifm_value, module_var, angle_var):
+
+        def set_conversion_to_exponential_form_with_phase(complex_arith_value, module_var, angle_var):
             """Подпрограмма преобразует арифметическое представление в полярное"""
             from math import degrees
             from cmath import polar
-            complex_polar_value = polar(complex_arifm_value)
+            complex_polar_value = polar(complex_arith_value)
             module_of_parameter = complex_polar_value[0]
             angle_of_parameter = degrees(complex_polar_value[1])
             module_var.set(module_of_parameter)
@@ -176,9 +195,13 @@ class FrameInfoElement(tk.LabelFrame):
                                                           self.angles_parameters[num_per])
 
     def transition_to_standard_state(self):
+        """Метод, который переводит рамку в стандартное состояние"""
         self.exchange_name_element('----')
         self.reload_state_entries([False] * self.count_parameters)
         self.reload_values_of_parameters([0.0] * self.count_parameters)
+        self.btn_save_parameters.config(state='disabled')
+
+
 class AreaQuickAccess(tk.Canvas):
     def __init__(self, frame, width, height, id_in_list, col_bg, col_highlight, col_text, col_outline):
         super().__init__(frame, bg=col_bg, height=height, width=width, highlightbackground=col_outline)

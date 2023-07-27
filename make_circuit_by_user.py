@@ -1,7 +1,6 @@
 from make_display import CLAMPS, WORKSPACE
 from classes_elements import Wire, Resistor, Capacitor, InductorCoil
 
-
 def bind_areas_of_quick_access_to_click(clicked_area_q_a):
     """Подпрограмма биндит область быстрого доступа на нажатие"""
     from options_visualization import COLOR_HIGHLIGHT, COLOR_BG_WORKSPACE

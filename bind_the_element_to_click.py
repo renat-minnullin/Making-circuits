@@ -78,9 +78,10 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
                 element_highlighted[0].exchange_color(element_highlighted[0].color_lines)
 
             frame_info = FRAME_INFO_ABOUT_ELEMENT
+            frame_info.highlighted_element = element
             frame_info.exchange_name_element(element.name)
-
             frame_info.reload_state_entries(element.accesses_to_change)
+            frame_info.btn_save_parameters.config( state='normal')
             frame_info.reload_values_of_parameters(element.parameters)
 
             element.exchange_color(element.color_highlight)
