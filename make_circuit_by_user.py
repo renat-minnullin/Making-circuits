@@ -1,5 +1,6 @@
 from make_display import CLAMPS, WORKSPACE
-from classes_elements import Wire, Resistor, Capacitor, InductorCoil
+from classes_elements import Wire
+
 
 def bind_areas_of_quick_access_to_click(clicked_area_q_a):
     """Подпрограмма биндит область быстрого доступа на нажатие"""
@@ -19,93 +20,54 @@ def bind_areas_of_quick_access_to_click(clicked_area_q_a):
         clicked_area_q_a.config(clicked_area_q_a, bg=COLOR_HIGHLIGHT)
 
 
-def binding_btns_of_group(idx_group, idx_element_in_list):
-    """Подпрограмма создает функции для кнопок группы, которые в данный момент открыты на экране"""
+def bind_element_button(Class_this_element, list_elements_of_the_this_class, drawing_function):
+    """Подпрограмма отрабатывает все действия, которые необходимо выполнять при нажатии на кнопку из разных положений"""
 
-    def bind_all_possibilities_btn_of_group(Class_this_element, list_elements_of_the_this_class, drawing_function):
-        """Подпрограмма отрабатывает все действия, которые необходимо выполнять при нажатии на кнопку из разных положений"""
+    def hide_highlighted_wire(hl_wire_):
+        """Подпрограмма скрывает провод, на который крепится элемент"""
+        canvas = hl_wire_.canvas
+        canvas.itemconfig(hl_wire_.elements_ids[0], state='hidden')
 
-        def hide_highlighted_wire(hl_wire_):
-            """Подпрограмма скрывает провод, на который крепится элемент"""
-            canvas = hl_wire_.canvas
-            canvas.itemconfig(hl_wire_.elements_ids[0], state='hidden')
+    def bind_one_btn(hl_wire, Class_element, list_elements_of_the_class):
+        """Подпрограмма запускает бинд одной кнопки в библиотеке элементов"""
+        from bind_the_element_to_click import bind_element_to_click
+        from make_display import FRAME_INFO_ABOUT_ELEMENT
+        element_of_the_class = Class_element(hl_wire.canvas, hl_wire.x_start, hl_wire.y_start,
+                                             hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
+                                             hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
+                                             hl_wire.color_highlight,
+                                             hl_wire.color_lines, hl_wire)
+        element_of_the_class.draw()
+        list_elements_of_the_class.append(element_of_the_class)
 
-        def bind_one_btn(hl_wire, Class_element, list_elements_of_the_class):
-            """Подпрограмма запускает бинд одной кнопки в библиотеке элементов"""
-            from bind_the_element_to_click import bind_element_to_click
-            from make_display import FRAME_INFO_ABOUT_ELEMENT
-            element_of_the_class = Class_element(hl_wire.canvas, hl_wire.x_start, hl_wire.y_start,
-                                                 hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
-                                                 hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
-                                                 hl_wire.color_highlight,
-                                                 hl_wire.color_lines, hl_wire)
-            element_of_the_class.draw()
-            list_elements_of_the_class.append(element_of_the_class)
+        frame_info = FRAME_INFO_ABOUT_ELEMENT
+        frame_info.transition_to_standard_state()
 
-            frame_info = FRAME_INFO_ABOUT_ELEMENT
-            frame_info.transition_to_standard_state()
+        bind_element_to_click(element_of_the_class, list_elements_of_the_class)
 
-            bind_element_to_click(element_of_the_class, list_elements_of_the_class)
+        # bind_all_possibilities_btn_of_group(hl_wire, Class_element, list_elements_of_the_class), если без него норм работает, то удали
 
-            #bind_all_possibilities_btn_of_group(hl_wire, Class_element, list_elements_of_the_class), если без него норм работает, то удали
+    from make_display import root
+    from options_visualization import COLOR_BG_WORKSPACE, COLOR_LINES, WIDTH_LINES
+    global element_highlighted, area_quick_access_highlighted
+    if element_highlighted[0].__class__.__name__ == 'Wire':
+        highlighted_wire = element_highlighted[0]
+        if highlighted_wire.canvas.itemcget(highlighted_wire.elements_ids[0], 'state') == 'normal':
+            hide_highlighted_wire(highlighted_wire)
+            bind_one_btn(highlighted_wire, Class_this_element, list_elements_of_the_this_class)
 
-        from make_display import root
-        from options_visualization import COLOR_BG_WORKSPACE, COLOR_LINES, WIDTH_LINES
-        global element_highlighted, area_quick_access_highlighted
-        if element_highlighted[0].__class__.__name__ == 'Wire':
-            highlighted_wire = element_highlighted[0]
-            if highlighted_wire.canvas.itemcget(highlighted_wire.elements_ids[0], 'state') == 'normal':
-                hide_highlighted_wire(highlighted_wire)
-                bind_one_btn(highlighted_wire, Class_this_element, list_elements_of_the_this_class)
-
-        elif area_quick_access_highlighted[0]:
-            area = area_quick_access_highlighted[0]
-            if area.own_elements_ids:
-                area.delete_own_element()
-            area.own_element = Class_this_element
-            area.own_list_elements_of_the_class = list_elements_of_the_this_class
-            area.own_elements_ids = drawing_function(area, [0, area.height // 2], [area.width, area.height // 2],
-                                                     area.width, WIDTH_LINES, COLOR_LINES)
-            area.config(area, bg=area.color_bg)
-            root.bind(str(area.number_btn), lambda event: bind_all_possibilities_btn_of_group(Class_this_element,
-                                                                                              list_elements_of_the_this_class,
-                                                                                              drawing_function))
-
-    def binding_btns_of_resistive_elements(idx_elem_in_list):
-        """Подпрограмма создает функции для кнопок группы Резистивные элементы (индекс группы 0)"""
-
-        if idx_elem_in_list == 0:
-            global RESISTORS
-            from drawing_elements import draw_resistor
-            bind_all_possibilities_btn_of_group(Resistor, RESISTORS, draw_resistor)
-
-        elif idx_elem_in_list == 1:
-            global INDUCTOR_COILS
-            from drawing_elements import draw_inductor_coil
-            bind_all_possibilities_btn_of_group(InductorCoil, INDUCTOR_COILS, draw_inductor_coil)
-
-        elif idx_elem_in_list == 2:
-            global CAPACITORS
-            from drawing_elements import draw_capacitor
-            bind_all_possibilities_btn_of_group(Capacitor, CAPACITORS, draw_capacitor)
-
-    def binding_btns_of_sources(idx_elem_in_list):
-        pass
-
-    def binding_btns_of_nonlinear_elements(idx_elem_in_list):
-        pass
-
-    def binding_btns_of_other(idx_elem_in_list):
-        pass
-
-    if idx_group == 0:
-        binding_btns_of_resistive_elements(idx_element_in_list)
-    elif idx_group == 1:
-        binding_btns_of_sources(idx_element_in_list)
-    elif idx_group == 2:
-        binding_btns_of_nonlinear_elements(idx_element_in_list)
-    elif idx_group == 3:
-        binding_btns_of_other(idx_element_in_list)
+    elif area_quick_access_highlighted[0]:
+        area = area_quick_access_highlighted[0]
+        if area.own_elements_ids:
+            area.delete_own_element()
+        area.own_element = Class_this_element
+        area.own_list_elements_of_the_class = list_elements_of_the_this_class
+        area.own_elements_ids = drawing_function(area, [0, area.height // 2], [area.width, area.height // 2],
+                                                 area.width, WIDTH_LINES, COLOR_LINES)
+        area.config(area, bg=area.color_bg)
+        root.bind(str(area.number_btn), lambda event: bind_element_button(Class_this_element,
+                                                                          list_elements_of_the_this_class,
+                                                                          drawing_function))
 
 
 def binding_clamps_for_making_wires(canvas, wires, clamps):
