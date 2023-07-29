@@ -1,3 +1,4 @@
+from drawing_elements import *
 class Element:
     def __del__(self):
         del self
@@ -37,7 +38,7 @@ class Wire(Element):
 
 
     def draw(self):
-        from drawing_elements import draw_wire
+
         self.elements_ids = draw_wire(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
                                       self.width_lines,
                                       self.color_lines)
@@ -90,7 +91,7 @@ class Node(Element):
         self.elements_ids = []
 
     def draw(self):
-        from drawing_elements import draw_node
+
         self.elements_ids = draw_node(self.canvas, [self.x_center, self.y_center], self.radius_clamp, self.width_lines,
                                       self.color_lines, self.color_fill)
 
@@ -100,7 +101,7 @@ class ElementStandardCircuit(Wire):
                  x_end, y_end, normal_length, clamp_start, clamp_end,
                  width_lines,
                  col_highlight,
-                 col_lines, own_wire):
+                 col_lines, own_wire, id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
@@ -108,25 +109,29 @@ class ElementStandardCircuit(Wire):
                          col_lines)
         self.own_wire = own_wire
 
+        self.id = id
+
+
 
 class Resistor(ElementStandardCircuit):
 
     def __init__(self, canvas, x_start, y_start, x_end, y_end, normal_length, clamp_start, clamp_end, width_lines,
                  col_highlight,
-                 col_lines, own_wire):
+                 col_lines, own_wire, id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
                          col_highlight,
-                         col_lines, own_wire)
+                         col_lines, own_wire, id)
         self.name = 'Резистор'
+        self.letter = 'R'
+        self.full_id = self.letter + self.id
         self.accesses_to_change = [True,
                                    True,
                                    True,
                                    True]
 
     def draw(self):
-        from drawing_elements import draw_resistor
         self.elements_ids = draw_resistor(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
                                           self.normal_length,
                                           self.width_lines,
@@ -137,20 +142,21 @@ class Capacitor(ElementStandardCircuit):
 
     def __init__(self, canvas, x_start, y_start, x_end, y_end, normal_length, clamp_start, clamp_end, width_lines,
                  col_highlight,
-                 col_lines, own_wire):
+                 col_lines, own_wire, id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
                          col_highlight,
-                         col_lines, own_wire)
+                         col_lines, own_wire, id)
         self.name = 'Конденсатор'
+        self.letter = 'C'
+        self.full_id = self.letter + self.id
         self.accesses_to_change = [True,
                                    True,
                                    True,
                                    True]
 
     def draw(self):
-        from drawing_elements import draw_capacitor
         self.elements_ids = draw_capacitor(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
                                            self.normal_length,
                                            self.width_lines,
@@ -161,20 +167,21 @@ class InductorCoil(ElementStandardCircuit):
 
     def __init__(self, canvas, x_start, y_start, x_end, y_end, normal_length, clamp_start, clamp_end, width_lines,
                  col_highlight,
-                 col_lines, own_wire):
+                 col_lines, own_wire, id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
                          col_highlight,
-                         col_lines, own_wire)
+                         col_lines, own_wire, id)
         self.name = 'Катушка индуктивности'
+        self.letter = 'L'
+        self.full_id = self.letter + self.id
         self.accesses_to_change = [True,
                                    True,
                                    True,
                                    True]
 
     def draw(self):
-        from drawing_elements import draw_inductor_coil
         self.elements_ids = draw_inductor_coil(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
                                                self.normal_length,
                                                self.width_lines,
@@ -185,20 +192,21 @@ class SourceEMF(ElementStandardCircuit):
 
     def __init__(self, canvas, x_start, y_start, x_end, y_end, normal_length, clamp_start, clamp_end, width_lines,
                  col_highlight,
-                 col_lines, own_wire):
+                 col_lines, own_wire, id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
                          col_highlight,
-                         col_lines, own_wire)
+                         col_lines, own_wire, id)
         self.name = 'Источник ЭДС'
+        self.letter = 'E'
+        self.full_id = self.letter + self.id
         self.accesses_to_change = [True,
                                    True,
                                    False,
                                    False]
 
     def draw(self):
-        from drawing_elements import draw_source_of_emf
         self.elements_ids = draw_source_of_emf(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
                                                self.normal_length,
                                                self.width_lines,
@@ -209,20 +217,21 @@ class SourceCurrent(ElementStandardCircuit):
 
     def __init__(self, canvas, x_start, y_start, x_end, y_end, normal_length, clamp_start, clamp_end, width_lines,
                  col_highlight,
-                 col_lines, own_wire):
+                 col_lines, own_wire, id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
                          col_highlight,
-                         col_lines, own_wire)
+                         col_lines, own_wire, id)
         self.name = 'Источник тока'
+        self.letter = 'J'
+        self.full_id = self.letter + self.id
         self.accesses_to_change = [True,
                                    True,
                                    False,
                                    False]
 
     def draw(self):
-        from drawing_elements import draw_current_source
         self.elements_ids = draw_current_source(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
                                                 self.normal_length,
                                                 self.width_lines,

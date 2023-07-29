@@ -36,7 +36,7 @@ def bind_element_button(Class_this_element, list_elements_of_the_this_class, dra
                                              hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
                                              hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
                                              hl_wire.color_highlight,
-                                             hl_wire.color_lines, hl_wire)
+                                             hl_wire.color_lines, hl_wire, str(len(list_elements_of_the_class) + 1))
         element_of_the_class.draw()
         list_elements_of_the_class.append(element_of_the_class)
 

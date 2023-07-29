@@ -1,7 +1,8 @@
 """Данный файл содержит в себе функции отрисовки элемента"""
 import tkinter as tk
 
-
+def draw_full_id_nearby_element(canvas, full_id):
+    pass
 def calculating_intend_at_center(radius, x_center_start, y_center_start, x_center_end,
                                  y_center_end):
     """Подпрограмма высчитывает смещение начала и конца провода, чтобы он шел не из центра, а с края круга"""
