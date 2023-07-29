@@ -1,8 +1,11 @@
 """Данный файл содержит в себе функции отрисовки элемента"""
 import tkinter as tk
 
+
 def draw_full_id_nearby_element(canvas, full_id):
     pass
+
+
 def calculating_intend_at_center(radius, x_center_start, y_center_start, x_center_end,
                                  y_center_end):
     """Подпрограмма высчитывает смещение начала и конца провода, чтобы он шел не из центра, а с края круга"""
@@ -60,7 +63,8 @@ def draw_wire(canvas, coord_start, coord_end, width_line, col_lines):
     y_main_end = coord_end[1]
 
     elements_ids = [
-        canvas.create_line(x_main_start, y_main_start, x_main_end, y_main_end, width=width_line, fill=col_lines, tag=['line'])]
+        canvas.create_line(x_main_start, y_main_start, x_main_end, y_main_end, width=width_line, fill=col_lines,
+                           tag=['line'])]
     return elements_ids
 
 
@@ -87,7 +91,8 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     x_end = x_start + dx
     y_end = y_start - dy  # минус ставится из-за перевернутой системы координат
 
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     # Верхняя половина первичной стенки резистора
     dx = width / 2 * cos(angle + pi / 2)
@@ -97,7 +102,8 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     y_start = y_end
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     # Верх основного тела
     dx = length_main_part * cos(angle)
@@ -107,7 +113,8 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     y_start = y_end
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     # Верхняя половину вторичной стенки резистора
     dx = width / 2 * cos(angle - pi / 2)
@@ -117,7 +124,8 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     y_start = y_end
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     buffer_x = x_end
     buffer_y = y_end
@@ -130,7 +138,8 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     x_end = x_start + dx
     y_end = y_start - dy
 
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     # Нижняя половина вторичной стенки резистора
     dx = width / 2 * cos(angle - pi / 2)
@@ -140,7 +149,8 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     y_start = buffer_y
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     # Нижняя часть основного тела резистора
     dx = length_main_part * cos(angle + pi)
@@ -150,7 +160,8 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     y_start = y_end
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
     # Нижняя половина первичной стенки резистора
     dx = width / 2 * cos(angle + pi / 2)
     dy = width / 2 * sin(angle + pi / 2)
@@ -159,7 +170,8 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     y_start = y_end
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
     return elements_ids
 
 
@@ -186,7 +198,8 @@ def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, co
     x_end = x_start + dx
     y_end = y_start - dy  # минус ставится из-за перевернутой системы координат
 
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     buffer_x = x_end
     buffer_y = y_end
@@ -199,7 +212,8 @@ def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, co
     y_start = y_end
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     # Первая пластина вторая половина
     dx = width / 2 * cos(angle - pi / 2)
@@ -209,7 +223,8 @@ def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, co
     y_start = buffer_y
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     transfer_x = length_between_plates * cos(angle)
     transfer_y = length_between_plates * sin(angle)
@@ -225,7 +240,8 @@ def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, co
     y_start = buffer_y
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     # Вторая пластина вторая половина
     dx = width / 2 * cos(angle - pi / 2)
@@ -235,7 +251,8 @@ def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, co
     y_start = buffer_y
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     # Второй контакт
     dx = length_contact * cos(angle)
@@ -244,7 +261,8 @@ def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, co
     y_start = buffer_y
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
     return elements_ids
 
 
@@ -276,7 +294,8 @@ def draw_inductor_coil(canvas, coord_start, coord_end, normal_length, width_line
     x_end = x_start + dx
     y_end = y_start - dy
 
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
     # Повторяющиеся витки
     dx = radius * cos(angle)
     dy = radius * sin(angle)
@@ -304,7 +323,8 @@ def draw_inductor_coil(canvas, coord_start, coord_end, normal_length, width_line
     dy = length_contact * sin(angle)
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     return elements_ids
 
@@ -331,7 +351,8 @@ def draw_source_of_emf(canvas, coord_start, coord_end, normal_length, width_line
     x_end = x_start + dx
     y_end = y_start - dy
 
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     # Окружность
     dx = radius * cos(angle)
@@ -346,7 +367,8 @@ def draw_source_of_emf(canvas, coord_start, coord_end, normal_length, width_line
     x_right_down = x_end + radius * (1 - cos(angle))
     y_right_down = y_end + radius * (1 + sin(angle))
     elements_ids.append(
-        canvas.create_oval((x_left_up, y_left_up), (x_right_down, y_right_down), width=width_line, outline=col_lines, tag=['oval']))
+        canvas.create_oval((x_left_up, y_left_up), (x_right_down, y_right_down), width=width_line, outline=col_lines,
+                           tag=['oval']))
 
     # Стрелка
     arrow_normal_length = radius / 2
@@ -364,7 +386,8 @@ def draw_source_of_emf(canvas, coord_start, coord_end, normal_length, width_line
     y_start = y_end
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
     return elements_ids
 
 
@@ -390,7 +413,8 @@ def draw_current_source(canvas, coord_start, coord_end, normal_length, width_lin
     x_end = x_start + dx
     y_end = y_start - dy
 
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     # Окружность
     dx = radius * cos(angle)
@@ -405,10 +429,12 @@ def draw_current_source(canvas, coord_start, coord_end, normal_length, width_lin
     x_right_down = x_end + radius * (1 - cos(angle))
     y_right_down = y_end + radius * (1 + sin(angle))
     elements_ids.append(
-        canvas.create_oval((x_left_up, y_left_up), (x_right_down, y_right_down), width=width_line, outline=col_lines, tag=['oval']))
+        canvas.create_oval((x_left_up, y_left_up), (x_right_down, y_right_down), width=width_line, outline=col_lines,
+                           tag=['oval']))
 
     # Линия внутри круга
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
 
     buffer_x = x_end
     buffer_y = y_end
@@ -438,7 +464,8 @@ def draw_current_source(canvas, coord_start, coord_end, normal_length, width_lin
     y_start = buffer_y
     x_end = x_start + dx
     y_end = y_start - dy
-    elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+    elements_ids.append(
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
     return elements_ids
 
 
