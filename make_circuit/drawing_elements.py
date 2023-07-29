@@ -345,7 +345,7 @@ def draw_source_of_emf(canvas, coord_start, coord_end, normal_length, width_line
     x_right_down = x_end + radius * (1 - cos(angle))
     y_right_down = y_end + radius * (1 + sin(angle))
     elements_ids.append(
-        canvas.create_oval((x_left_up, y_left_up), (x_right_down, y_right_down), width=width_line, fill=col_lines, tag=['oval']))
+        canvas.create_oval((x_left_up, y_left_up), (x_right_down, y_right_down), width=width_line, outline=col_lines, tag=['oval']))
 
     # Стрелка
     arrow_normal_length = radius / 2
@@ -404,7 +404,7 @@ def draw_current_source(canvas, coord_start, coord_end, normal_length, width_lin
     x_right_down = x_end + radius * (1 - cos(angle))
     y_right_down = y_end + radius * (1 + sin(angle))
     elements_ids.append(
-        canvas.create_oval((x_left_up, y_left_up), (x_right_down, y_right_down), width=width_line, fill=col_lines, tag=['oval']))
+        canvas.create_oval((x_left_up, y_left_up), (x_right_down, y_right_down), width=width_line, outline=col_lines, tag=['oval']))
 
     # Линия внутри круга
     elements_ids.append(canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
