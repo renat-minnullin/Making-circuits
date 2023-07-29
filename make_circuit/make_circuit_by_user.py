@@ -32,11 +32,7 @@ def bind_element_button(Class_this_element, list_elements_of_the_this_class, dra
         """Подпрограмма запускает бинд одной кнопки в библиотеке элементов"""
         from bind_the_element_to_click import bind_element_to_click
         from make_display import FRAME_INFO_ABOUT_ELEMENT
-        element_of_the_class = Class_element(hl_wire.canvas, hl_wire.x_start, hl_wire.y_start,
-                                             hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
-                                             hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
-                                             hl_wire.color_highlight,
-                                             hl_wire.color_lines, hl_wire, str(len(list_elements_of_the_class) + 1))
+        element_of_the_class = Class_element( hl_wire, str(len(list_elements_of_the_class) + 1))
         element_of_the_class.draw()
         list_elements_of_the_class.append(element_of_the_class)
 
