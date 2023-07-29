@@ -2,12 +2,42 @@
 import tkinter as tk
 
 
-def draw_full_id_nearby_element(canvas, full_id):
-    pass
+def total_draw_element(canvas, draw_function, coord_start, coord_end, normal_length, width_lines, full_id, color_lines,
+                       color_full_id, font_full_id):
+    elements_ids = draw_function(canvas, coord_start, coord_end,
+                                 normal_length,
+                                 width_lines,
+                                 color_lines)
+    title_element_id = draw_full_id_nearby_element(canvas, coord_start,
+                                                   coord_end, full_id,
+                                                   color_full_id, font_full_id)
+    return elements_ids, title_element_id
 
 
-def calculating_intend_at_center(radius, x_center_start, y_center_start, x_center_end,
-                                 y_center_end):
+def draw_full_id_nearby_element(canvas, coord_start, coord_end, full_id, color_full_id, font_full_id):
+    """Подпрограмма отрисовывает рядом с элементом его литеру и номер (full_id)"""
+    x_main_start = coord_start[0]
+    y_main_start = coord_start[1]
+    x_main_end = coord_end[0]
+    y_main_end = coord_end[1]
+    x_main_center = (x_main_start + x_main_end) / 2
+    y_main_center = (y_main_start + y_main_end) / 2
+
+    if x_main_start == x_main_end:
+        x_text = x_main_center + abs(y_main_start - y_main_end) / 3
+        y_text = y_main_center
+    elif y_main_start == y_main_end:
+        x_text = x_main_center
+        y_text = y_main_center + abs(x_main_start - x_main_end) / 3
+    else:
+        x_text = x_main_center
+        y_text = y_main_start
+
+    return canvas.create_text(x_text, y_text, text=full_id, fill=color_full_id, font=font_full_id)
+
+
+def calculating_intend_at_center_of_clamp(radius, x_center_start, y_center_start, x_center_end,
+                                          y_center_end):
     """Подпрограмма высчитывает смещение начала и конца провода, чтобы он шел не из центра, а с края круга"""
 
     from math import sin, cos

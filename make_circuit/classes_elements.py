@@ -1,4 +1,6 @@
 from drawing_elements import *
+
+
 class Element:
     def __del__(self):
         del self
@@ -35,7 +37,6 @@ class Wire(Element):
                                    False,
                                    False,
                                    False]
-
 
     def draw(self):
 
@@ -91,7 +92,6 @@ class Node(Element):
         self.elements_ids = []
 
     def draw(self):
-
         self.elements_ids = draw_node(self.canvas, [self.x_center, self.y_center], self.radius_clamp, self.width_lines,
                                       self.color_lines, self.color_fill)
 
@@ -101,7 +101,7 @@ class ElementStandardCircuit(Wire):
                  x_end, y_end, normal_length, clamp_start, clamp_end,
                  width_lines,
                  col_highlight,
-                 col_lines, own_wire, id):
+                 col_lines, own_wire, id, color_full_id, font_full_id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
@@ -110,19 +110,21 @@ class ElementStandardCircuit(Wire):
         self.own_wire = own_wire
 
         self.id = id
-
+        self.color_full_id = color_full_id
+        self.title_element_id = None
+        self.font_full_id = font_full_id
 
 
 class Resistor(ElementStandardCircuit):
 
     def __init__(self, canvas, x_start, y_start, x_end, y_end, normal_length, clamp_start, clamp_end, width_lines,
                  col_highlight,
-                 col_lines, own_wire, id):
+                 col_lines, own_wire, id, color_full_id, font_full_id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
                          col_highlight,
-                         col_lines, own_wire, id)
+                         col_lines, own_wire, id, color_full_id, font_full_id)
         self.name = 'Резистор'
         self.letter = 'R'
         self.full_id = self.letter + self.id
@@ -132,22 +134,25 @@ class Resistor(ElementStandardCircuit):
                                    True]
 
     def draw(self):
-        self.elements_ids = draw_resistor(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
-                                          self.normal_length,
-                                          self.width_lines,
-                                          self.color_lines)
+        self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_resistor,
+                                                                      [self.x_start, self.y_start],
+                                                                      [self.x_end, self.y_end],
+                                                                      self.normal_length,
+                                                                      self.width_lines, self.full_id,
+                                                                      self.color_lines,
+                                                                      self.color_full_id, self.font_full_id)
 
 
 class Capacitor(ElementStandardCircuit):
 
     def __init__(self, canvas, x_start, y_start, x_end, y_end, normal_length, clamp_start, clamp_end, width_lines,
                  col_highlight,
-                 col_lines, own_wire, id):
+                 col_lines, own_wire, id, color_full_id, font_full_id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
                          col_highlight,
-                         col_lines, own_wire, id)
+                         col_lines, own_wire, id, color_full_id, font_full_id)
         self.name = 'Конденсатор'
         self.letter = 'C'
         self.full_id = self.letter + self.id
@@ -157,22 +162,25 @@ class Capacitor(ElementStandardCircuit):
                                    True]
 
     def draw(self):
-        self.elements_ids = draw_capacitor(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
-                                           self.normal_length,
-                                           self.width_lines,
-                                           self.color_lines)
+        self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_capacitor,
+                                                                      [self.x_start, self.y_start],
+                                                                      [self.x_end, self.y_end],
+                                                                      self.normal_length,
+                                                                      self.width_lines, self.full_id,
+                                                                      self.color_lines,
+                                                                      self.color_full_id, self.font_full_id)
 
 
 class InductorCoil(ElementStandardCircuit):
 
     def __init__(self, canvas, x_start, y_start, x_end, y_end, normal_length, clamp_start, clamp_end, width_lines,
                  col_highlight,
-                 col_lines, own_wire, id):
+                 col_lines, own_wire, id, color_full_id, font_full_id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
                          col_highlight,
-                         col_lines, own_wire, id)
+                         col_lines, own_wire, id, color_full_id, font_full_id)
         self.name = 'Катушка индуктивности'
         self.letter = 'L'
         self.full_id = self.letter + self.id
@@ -182,22 +190,25 @@ class InductorCoil(ElementStandardCircuit):
                                    True]
 
     def draw(self):
-        self.elements_ids = draw_inductor_coil(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
-                                               self.normal_length,
-                                               self.width_lines,
-                                               self.color_lines)
+        self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_inductor_coil,
+                                                                      [self.x_start, self.y_start],
+                                                                      [self.x_end, self.y_end],
+                                                                      self.normal_length,
+                                                                      self.width_lines, self.full_id,
+                                                                      self.color_lines,
+                                                                      self.color_full_id, self.font_full_id)
 
 
 class SourceEMF(ElementStandardCircuit):
 
     def __init__(self, canvas, x_start, y_start, x_end, y_end, normal_length, clamp_start, clamp_end, width_lines,
                  col_highlight,
-                 col_lines, own_wire, id):
+                 col_lines, own_wire, id, color_full_id, font_full_id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
                          col_highlight,
-                         col_lines, own_wire, id)
+                         col_lines, own_wire, id, color_full_id, font_full_id)
         self.name = 'Источник ЭДС'
         self.letter = 'E'
         self.full_id = self.letter + self.id
@@ -207,22 +218,25 @@ class SourceEMF(ElementStandardCircuit):
                                    False]
 
     def draw(self):
-        self.elements_ids = draw_source_of_emf(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
-                                               self.normal_length,
-                                               self.width_lines,
-                                               self.color_lines)
+        self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_source_of_emf,
+                                                                      [self.x_start, self.y_start],
+                                                                      [self.x_end, self.y_end],
+                                                                      self.normal_length,
+                                                                      self.width_lines, self.full_id,
+                                                                      self.color_lines,
+                                                                      self.color_full_id, self.font_full_id)
 
 
 class SourceCurrent(ElementStandardCircuit):
 
     def __init__(self, canvas, x_start, y_start, x_end, y_end, normal_length, clamp_start, clamp_end, width_lines,
                  col_highlight,
-                 col_lines, own_wire, id):
+                 col_lines, own_wire, id, color_full_id, font_full_id):
         super().__init__(canvas, x_start, y_start,
                          x_end, y_end, normal_length, clamp_start, clamp_end,
                          width_lines,
                          col_highlight,
-                         col_lines, own_wire, id)
+                         col_lines, own_wire, id, color_full_id, font_full_id)
         self.name = 'Источник тока'
         self.letter = 'J'
         self.full_id = self.letter + self.id
@@ -232,7 +246,10 @@ class SourceCurrent(ElementStandardCircuit):
                                    False]
 
     def draw(self):
-        self.elements_ids = draw_current_source(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
-                                                self.normal_length,
-                                                self.width_lines,
-                                                self.color_lines)
+        self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_current_source,
+                                                                      [self.x_start, self.y_start],
+                                                                      [self.x_end, self.y_end],
+                                                                      self.normal_length,
+                                                                      self.width_lines, self.full_id,
+                                                                      self.color_lines,
+                                                                      self.color_full_id, self.font_full_id)

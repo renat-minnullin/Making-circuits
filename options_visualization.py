@@ -15,3 +15,5 @@ COLOR_HIGHLIGHT = 'yellow'
 
 COLOR_LINES = 'black'
 COLOR_NODE_FILL = 'black'
+COLOR_FULL_ID = 'black'
+FONT_FULL_ID = "Times 14"

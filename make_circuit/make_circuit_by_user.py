@@ -32,11 +32,13 @@ def bind_element_button(Class_this_element, list_elements_of_the_this_class, dra
         """Подпрограмма запускает бинд одной кнопки в библиотеке элементов"""
         from bind_the_element_to_click import bind_element_to_click
         from make_display import FRAME_INFO_ABOUT_ELEMENT
+        from options_visualization import COLOR_FULL_ID, FONT_FULL_ID
+
         element_of_the_class = Class_element(hl_wire.canvas, hl_wire.x_start, hl_wire.y_start,
                                              hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
                                              hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
                                              hl_wire.color_highlight,
-                                             hl_wire.color_lines, hl_wire, str(len(list_elements_of_the_class) + 1))
+                                             hl_wire.color_lines, hl_wire, str(len(list_elements_of_the_class) + 1), COLOR_FULL_ID,  FONT_FULL_ID)
         element_of_the_class.draw()
         list_elements_of_the_class.append(element_of_the_class)
 
@@ -200,11 +202,11 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
             def init_wire(clamp_start_, clamp_end_):
                 """Подпрограмма создает провод на представленных зажимах"""
 
-                from drawing_elements import calculating_intend_at_center
+                from drawing_elements import calculating_intend_at_center_of_clamp
                 from options_visualization import NORMAL_LENGTH
                 from bind_the_element_to_click import bind_element_to_click
 
-                x_start_wire, y_start_wire, x_end_wire, y_end_wire = calculating_intend_at_center(
+                x_start_wire, y_start_wire, x_end_wire, y_end_wire = calculating_intend_at_center_of_clamp(
                     clamp_start_.radius_circle, clamp_start_.x_center_circle, clamp_start_.y_center_circle,
                     clamp_end_.x_center_circle, clamp_end_.y_center_circle)
 
