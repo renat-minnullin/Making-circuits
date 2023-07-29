@@ -84,6 +84,7 @@ class FrameInfoElement(tk.LabelFrame):
 
         def save_parameters_in_element():
             """Подпрограмма отыгрывает нажатие на кнопку сохранения параметров элемента"""
+
             def conversion_to_arithmetic_form(module_, angle_):
                 """Подпрограмма переводит из полярной формы в арифметическую"""
                 from cmath import rect
@@ -252,7 +253,6 @@ def make_main_window(width, height, location, title, path_icon):
     return window
 
 
-
 def make_frames_info(width_frame, height_string):
     def make_frame_info_circuit(main_frame, width, height, col_bg_info_frame, col_text):
         """Подпрограмма создает рамку слева в главном окне (СТОЛБЕЦ 0, РЯД 0). В ней будет записана информация о цепи:
@@ -315,7 +315,7 @@ def make_frames_info(width_frame, height_string):
     return btn_run_circuit, frame_info_about_element
 
 
-def make_frames_workspace(window,  width_library,
+def make_frames_workspace(window, width_library,
                           width_workspace, height_workspace, width_quick_access, height_quick_access,
                           min_width_one_area_quick_access, ):
     """Подпрограмма для создания рамок: рабочей области зажимов, области быстрого доступа, области библиотеки элементов и запуска их"""
@@ -390,10 +390,10 @@ def make_frames_workspace(window,  width_library,
                                                    col_clamps_outline, col_bg_workspace)
             binding_areas_to_exchange_color_for_click(count_areas, areas_canvas_quick_access)
 
-    def make_workspace_for_clamping(frame_wrksp, width_workspace_, height_workspace_, radius_clamp_, indent_,
-                                    col_bg_workspace,
-                                    col_clamps_fill,
-                                    col_clamps_outline, col_clamps_outline_pushed, col_frame_outline):
+    def make_frame_clamping_board(frame_wrksp, width_workspace_, height_workspace_, radius_clamp_, indent_,
+                                  col_bg_workspace,
+                                  col_clamps_fill,
+                                  col_clamps_outline, col_clamps_outline_pushed, col_frame_outline):
         """Подпрограмма создает рабочее пространство с набором зажимов, на котором будет возможно рисовать провода и элементы"""
 
         def making_clamps(canvas, rows, columns, size_area, rad_clamp, ind, col_fill, col_outline,
@@ -427,11 +427,13 @@ def make_frames_workspace(window,  width_library,
                                     col_bg_info_frame):
         """Подпрограмма создает рамку для библиотеки элементов"""
 
-        def selected_group(btns_elems_group, tuple_names_group, tuple_names_elements, tuple_characteristic_elements,
-                           width_libr_x):
+        def select_group(btns_elems_group, tuple_names_group, tuple_names_elements, tuple_characteristic_elements,
+                         width_libr_x):
             """Подпрограмма отзывается на выбор группы из списка комбобокса"""
-            def making_buttons_element_of_selected_group(index_group, btns, tuple_names_elems, tuple_characteristic_elems,
-                                                         width_libr_xx):
+
+            def making_buttons_of_elements_of_selected_group(index_group, btns, tuple_names_elems,
+                                                             tuple_characteristic_elems,
+                                                             width_libr_xx):
                 """Подпрограмма создает кнопки с привязкой к элементам определенной группы"""
 
                 def bind_one_btn(index_group_, index_element_in_list_, tuple_charact_elems):
@@ -442,17 +444,26 @@ def make_frames_workspace(window,  width_library,
                         from make_circuit_by_user import bind_element_button
                         bind_element_button(*tuple_charact_elems_[idx_group][idx_element])
 
+                    if isinstance(tuple_names_elems[index_group], str): # разветвление необходимо, чтобы обойти ошибку, при которой одиночный элемент разбивался на кучу элементов по одной букве
+                        text_button = tuple_names_elems[index_group_]
+                    else:
+                        text_button = tuple_names_elems[index_group_][
+                                                                 index_element_in_list_]
                     btns[index_element_in_list_] = tk.Button(frame_library_elements,
-                                                             text=tuple_names_elems[index_group_][
-                                                                 index_element_in_list_],
+                                                             text=text_button,
                                                              width=width_libr_xx // 10,
                                                              command=lambda: click_on_button_element(index_group_,
                                                                                                      index_element_in_list_,
                                                                                                      tuple_charact_elems))
 
-                count_element_in_group = len(tuple_names_elems[index_group])
+                if isinstance(tuple_names_elems[index_group], str): # разветвление необходимо, чтобы обойти ошибку, при которой одиночный элемент разбивался на кучу элементов по одной букве
+                    count_element_in_group = 1
+                else:
+                    count_element_in_group = len(tuple_names_elems[index_group])
+
                 for index_element_in_list in range(count_element_in_group):
-                    btns.append([None] * count_element_in_group)
+                    btns.append([None])
+
                 for index_element_in_list in range(count_element_in_group):
                     bind_one_btn(index_group, index_element_in_list, tuple_characteristic_elems)
 
@@ -468,10 +479,12 @@ def make_frames_workspace(window,  width_library,
             delete_old_btns(btns_elems_group)
             selection = cmbbx_list_headings_groups.get()
             index_selected_group = tuple_names_group.index(selection)
-            making_buttons_element_of_selected_group(index_selected_group, btns_elems_group, tuple_names_elements, tuple_characteristic_elements,
-                                                     width_libr_x)
+            making_buttons_of_elements_of_selected_group(index_selected_group, btns_elems_group, tuple_names_elements,
+                                                         tuple_characteristic_elements,
+                                                         width_libr_x)
 
-        from create_tuples_of_all_elements import TUPLE_NAMES_GROUPS, TUPLE_NAMES_ELEMENTS, TUPLE_CHARACTERISTIC_ELEMENTS
+        from create_tuples_of_all_elements import TUPLE_NAMES_GROUPS, TUPLE_NAMES_ELEMENTS, \
+            TUPLE_CHARACTERISTIC_ELEMENTS
         frame_library_elements = tk.Frame(frame_wrksp, bg=col_bg_info_frame)
         frame_library_elements.grid(row=0, column=1, rowspan=2, sticky='news')
 
@@ -481,14 +494,15 @@ def make_frames_workspace(window,  width_library,
         btns_elements_of_group = []
         cmbbx_list_headings_groups.grid(row=0, column=0, sticky='ew')
         cmbbx_list_headings_groups.bind('<<ComboboxSelected>>',
-                                        lambda event: selected_group(btns_elements_of_group, TUPLE_NAMES_GROUPS,
-                                                                     TUPLE_NAMES_ELEMENTS, TUPLE_CHARACTERISTIC_ELEMENTS,
-                                                                     width_library_))
+                                        lambda event: select_group(btns_elements_of_group, TUPLE_NAMES_GROUPS,
+                                                                   TUPLE_NAMES_ELEMENTS,
+                                                                   TUPLE_CHARACTERISTIC_ELEMENTS,
+                                                                   width_library_))
 
         default_index = 0  # индекс группы элементов, которая выбирается при включении программы
         cmbbx_list_headings_groups.current(default_index)
-        selected_group(btns_elements_of_group, TUPLE_NAMES_GROUPS, TUPLE_NAMES_ELEMENTS, TUPLE_CHARACTERISTIC_ELEMENTS,
-                       width_library_)
+        select_group(btns_elements_of_group, TUPLE_NAMES_GROUPS, TUPLE_NAMES_ELEMENTS, TUPLE_CHARACTERISTIC_ELEMENTS,
+                     width_library_)
 
     from math import floor
     from options_visualization import RADIUS_CLAMP, INDENT
@@ -503,16 +517,16 @@ def make_frames_workspace(window,  width_library,
                             COLOR_CLAMPS_OUTLINE,
                             COLOR_BG_WORKSPACE)
 
-    clamps, workspace = make_workspace_for_clamping(frame_workspace,
-                                                    width_workspace,
-                                                    height_workspace,
-                                                    RADIUS_CLAMP,
-                                                    INDENT,
-                                                    COLOR_BG_WORKSPACE,
-                                                    COLOR_CLAMPS_FILL,
-                                                    COLOR_CLAMPS_OUTLINE,
-                                                    COLOR_CLAMPS_OUTLINE_PUSHED,
-                                                    COLOR_FRAME_OUTLINE)
+    clamps, workspace = make_frame_clamping_board(frame_workspace,
+                                                  width_workspace,
+                                                  height_workspace,
+                                                  RADIUS_CLAMP,
+                                                  INDENT,
+                                                  COLOR_BG_WORKSPACE,
+                                                  COLOR_CLAMPS_FILL,
+                                                  COLOR_CLAMPS_OUTLINE,
+                                                  COLOR_CLAMPS_OUTLINE_PUSHED,
+                                                  COLOR_FRAME_OUTLINE)
 
     make_frame_elements_library(frame_workspace,
                                 width_library, COLOR_BG_INFO_FRAME)
@@ -528,7 +542,6 @@ LOCATION = '+10+150'
 path_main_icon = 'Icons/left_angle_main_icon.png'
 
 root = make_main_window(WIDTH_WINDOW, HEIGHT_WINDOW, LOCATION, TITLE, path_main_icon)
-
 
 MAX_COUNT_SIMBOLS_LIST_NGE = ''
 

@@ -1,6 +1,6 @@
 """Данный файл содержит кортеж, заполненный согласно группе и элементу необходимыми для его создания данными
 """
-from classes_elements import Resistor, InductorCoil, Capacitor, SourceEMF, SourceCurrent
+from classes_elements import *
 from drawing_elements import *
 
 RESISTORS = []

@@ -288,6 +288,7 @@ def working_circuit(btn_run_circuit, clamps):
                     if not fl_error:
                         print('Ветви определены')
             return fl_error, txt_error
+
         from make_circuit_by_user import moving_wire_line
         global flag_running
         flag_error = False
@@ -303,12 +304,11 @@ def working_circuit(btn_run_circuit, clamps):
 
         if flag_error:
             print(text_error)
-            #flag_running = exchange_state_running(flag_running) если все норм работает, удали
+            # flag_running = exchange_state_running(flag_running) если все норм работает, удали
         else:
             pass
 
     btn_run_circuit.configure(command=click_run_btn)
-
 
 
 flag_running = False
