@@ -16,6 +16,7 @@ class Clamp:
         self.row = row
         self.column = column
 
+
         self.x_left_up_circle = self.x_left_up_shell + self.indent
         self.y_left_up_circle = self.y_left_up_shell + self.indent
         self.x_right_down_circle = self.x_left_up_circle + self.radius_circle * 2

@@ -115,7 +115,7 @@ def working_circuit(btn_run_circuit, clamps):
 
                 return fl_err, txt_err
 
-            def create_massive_branches(massive_row_col_nodes, massive_row_col_no_nodes):
+            def create_massive_row_col_branches(massive_row_col_nodes, massive_row_col_no_nodes):
                 """Подпрограмма создает ветвь. Обрати внимание, что для случая с несколькими ветвями первый и последний элемент
                  в массиве list_massive_row_column_branch_clamps[i] для каждого провода является узлом, а все между -
                  зажимами с одиночной связью"""
@@ -194,6 +194,8 @@ def working_circuit(btn_run_circuit, clamps):
                     list_massive_row_column_branch_clamps.append([])
                     start_coord = massive_row_col_no_nodes[0]  # [row, col]
                     bypassing_single_branch(start_coord, list_massive_row_column_branch_clamps)
+                    list_massive_row_column_branch_clamps[0].append(list_massive_row_column_branch_clamps[0][0])
+                    # добавляю в конец ветви начальный зажим, чтобы было как в случае для нескольких ветвей
                 else:
                     buffer_massive_row_col_nodes = massive_row_col_nodes.copy()
 
@@ -228,8 +230,9 @@ def working_circuit(btn_run_circuit, clamps):
 
                 return list_massive_row_column_branch_clamps
 
-            def analise_branches(massive_row_col_in_branches, massive_row_col_nodes, massive_row_col_no_nodes):
-                """Подпрограмма анализирует массив веток на возможные ошибки"""
+            def analise_massive_row_col_branches(massive_row_col_in_branches, massive_row_col_nodes,
+                                                 massive_row_col_no_nodes):
+                """Подпрограмма анализирует массив веток row and col на возможные ошибки"""
                 fl_err = False
                 txt_err = 'Not error'
 
@@ -270,6 +273,79 @@ def working_circuit(btn_run_circuit, clamps):
 
                 return fl_err, txt_err
 
+            def create_massive_wires_branches(massive_r_c_brch):
+                """Подпрограмма трансформирует массив ветвей с row and col в массив ветвей с экземплярами класса Wire"""
+                from make_circuit_by_user import WIRES
+
+                count_branches = len(massive_r_c_brch)
+                massive_wires_in_branches = [[]] * count_branches
+
+                buffer_wires = []
+                for wire in WIRES:
+                    buffer_wires.append(wire)
+
+                num_brch = 0
+                while num_brch < count_branches:
+                    count_coords = len(massive_r_c_brch[num_brch])
+                    num_coord = 0
+
+                    count_wires_in_branch = count_coords - 1
+                    massive_wires_in_branches[num_brch] = ([None] * count_wires_in_branch)
+
+                    num_wire_in_brch = 0
+                    while num_coord < count_coords and num_wire_in_brch < count_wires_in_branch:
+
+                        count_wires = len(buffer_wires)
+                        num_wire = 0
+                        fl_wire_found = False
+
+                        while num_wire < count_wires and not fl_wire_found:
+                            r_c = massive_r_c_brch[num_brch][num_coord]
+                            r_c_next = massive_r_c_brch[num_brch][num_coord + 1]
+                            r_c_start_clamp_of_wire = [buffer_wires[num_wire].clamp_start.row,
+                                                       buffer_wires[num_wire].clamp_start.column]
+                            r_c_end_clamp_of_wire = [buffer_wires[num_wire].clamp_end.row,
+                                                     buffer_wires[num_wire].clamp_end.column]
+
+                            if (r_c == r_c_start_clamp_of_wire or r_c == r_c_end_clamp_of_wire) and (
+                                    r_c_next == r_c_start_clamp_of_wire or r_c_next == r_c_end_clamp_of_wire):
+                                massive_wires_in_branches[num_brch][num_wire_in_brch] = buffer_wires[num_wire]
+                                buffer_wires.pop(num_wire)
+                                fl_wire_found = True
+                                num_wire_in_brch += 1
+                            else:
+                                num_wire += 1
+                        num_coord += 1
+
+                    num_brch += 1
+
+                return massive_wires_in_branches
+
+            def analise_branches(branches_):
+                """Подпрограмма анализирует ветви на возможные ошибки"""
+                fl_err = False
+                txt_err = 'Not error'
+                if not fl_err:
+                    if len(branches_) == 0:
+                        fl_err = True
+                        txt_err = 'Непредвиденная ошибка! В массиве ветвей нет элементов'
+
+                if not fl_err:
+                    for brch in branches_:
+                        if len(brch) == 0:
+                            fl_err = True
+                            txt_err = 'Непредвиденная ошибка! В массиве ветвей в одной из веток нет элементов'
+
+                if not fl_err:
+                    for brch in branches_:
+                        for wire in brch:
+                            if wire.__class__.__name__ != 'Wire':
+                                fl_err = True
+                                txt_err = 'Непредвиденная ошибка! В массиве ветвей один из элементов не является экземпляром' \
+                                          'класса Wire'
+
+                return fl_err, txt_err
+
             # --------------RUN------------------
             massive_row_column_clamped_clamps = create_massive_clamped_clamps()
             fl_error, txt_error = analise_clamped_clamps(massive_row_column_clamped_clamps)
@@ -281,12 +357,19 @@ def working_circuit(btn_run_circuit, clamps):
                 fl_error, txt_error = analise_nodes(massive_row_column_nodes)
                 if not fl_error:
                     print('Узлы определены')
-                    massive_row_column_in_branches = create_massive_branches(massive_row_column_nodes,
-                                                                             massive_row_column_no_nodes)
-                    fl_error, txt_error = analise_branches(massive_row_column_in_branches, massive_row_column_nodes,
-                                                           massive_row_column_no_nodes)
+                    massive_row_column_in_branches = create_massive_row_col_branches(massive_row_column_nodes,
+                                                                                     massive_row_column_no_nodes)
+
+                    fl_error, txt_error = analise_massive_row_col_branches(massive_row_column_in_branches,
+                                                                           massive_row_column_nodes,
+                                                                           massive_row_column_no_nodes)
+
                     if not fl_error:
-                        print('Ветви определены')
+                        print('Массив ветвей по координатам зажимов определен')
+                        branches = create_massive_wires_branches(massive_row_column_in_branches)
+                        fl_error, txt_error = analise_branches(branches)
+                        if not fl_error:
+                            print('Ветви полностью определены')
             return fl_error, txt_error
 
         from make_circuit_by_user import moving_wire_line

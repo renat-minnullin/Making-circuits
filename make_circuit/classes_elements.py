@@ -18,6 +18,8 @@ class Wire(Element):
         self.x_end = x_end
         self.y_end = y_end
 
+        self.coord_start = [x_start, y_start]
+        self.coord_end = [x_end, y_end]
         self.normal_length = normal_length
         self.width_lines = width_lines
         self.color_lines = col_lines
@@ -37,10 +39,10 @@ class Wire(Element):
                                    False,
                                    False,
                                    False]
-
+        self.title_element_id = None
     def draw(self):
 
-        self.elements_ids = draw_wire(self.canvas, [self.x_start, self.y_start], [self.x_end, self.y_end],
+        self.elements_ids = draw_wire(self.canvas, self.coord_start, self.coord_end,
                                       self.width_lines,
                                       self.color_lines)
         self.canvas.itemconfig(self.elements_ids[0], state='normal')
@@ -54,7 +56,8 @@ class Wire(Element):
                 self.canvas.itemconfig(id_piece_of_element, fill=color)
             elif 'arc' or 'oval' in tags:
                 self.canvas.itemconfig(id_piece_of_element, outline=color)
-
+            if self.title_element_id is not None:
+                self.canvas.itemconfigure(self.title_element_id,fill=color)
 
 class Connection(Element):
     """Данный класс отвечает за объект соединения исключительно двух проводов на одном clamp"""
@@ -111,7 +114,7 @@ class ElementStandardCircuit(Wire):
 
         self.id = id
         self.color_full_id = color_full_id
-        self.title_element_id = None
+
         self.font_full_id = font_full_id
 
 
@@ -135,8 +138,7 @@ class Resistor(ElementStandardCircuit):
 
     def draw(self):
         self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_resistor,
-                                                                      [self.x_start, self.y_start],
-                                                                      [self.x_end, self.y_end],
+                                                                      self.coord_start, self.coord_end,
                                                                       self.normal_length,
                                                                       self.width_lines, self.full_id,
                                                                       self.color_lines,
@@ -163,8 +165,7 @@ class Capacitor(ElementStandardCircuit):
 
     def draw(self):
         self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_capacitor,
-                                                                      [self.x_start, self.y_start],
-                                                                      [self.x_end, self.y_end],
+                                                                      self.coord_start, self.coord_end,
                                                                       self.normal_length,
                                                                       self.width_lines, self.full_id,
                                                                       self.color_lines,
@@ -191,8 +192,7 @@ class InductorCoil(ElementStandardCircuit):
 
     def draw(self):
         self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_inductor_coil,
-                                                                      [self.x_start, self.y_start],
-                                                                      [self.x_end, self.y_end],
+                                                                      self.coord_start, self.coord_end,
                                                                       self.normal_length,
                                                                       self.width_lines, self.full_id,
                                                                       self.color_lines,
@@ -219,8 +219,7 @@ class SourceEMF(ElementStandardCircuit):
 
     def draw(self):
         self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_source_of_emf,
-                                                                      [self.x_start, self.y_start],
-                                                                      [self.x_end, self.y_end],
+                                                                      self.coord_start, self.coord_end,
                                                                       self.normal_length,
                                                                       self.width_lines, self.full_id,
                                                                       self.color_lines,
@@ -244,11 +243,13 @@ class SourceCurrent(ElementStandardCircuit):
                                    True,
                                    False,
                                    False]
-
+        self.parameters = [0,
+                           0,
+                           float('inf'),
+                           0]
     def draw(self):
         self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_current_source,
-                                                                      [self.x_start, self.y_start],
-                                                                      [self.x_end, self.y_end],
+                                                                      self.coord_start, self.coord_end,
                                                                       self.normal_length,
                                                                       self.width_lines, self.full_id,
                                                                       self.color_lines,
