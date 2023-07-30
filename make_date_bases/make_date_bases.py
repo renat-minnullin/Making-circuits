@@ -2,7 +2,7 @@ from make_display import BUTTON_RUN, CLAMPS, root
 from classes_elements import Node
 
 
-def working_circuit(btn_run_circuit, clamps):
+def working_circuit(btn_run_circuit, clamps, branches):
     """Подпрограмма, отвечающая за работу с распознаванием цепи и созданием соответствующих таблиц"""
 
     def click_run_btn():
@@ -273,12 +273,14 @@ def working_circuit(btn_run_circuit, clamps):
 
                 return fl_err, txt_err
 
-            def create_massive_wires_branches(massive_r_c_brch):
+            def create_massive_wires_branches(massive_r_c_brch, branches_):
                 """Подпрограмма трансформирует массив ветвей с row and col в массив ветвей с экземплярами класса Wire"""
                 from make_circuit_by_user import WIRES
 
+
                 count_branches = len(massive_r_c_brch)
-                massive_wires_in_branches = [[]] * count_branches
+                for i in range(count_branches):
+                    branches_.append([])
 
                 buffer_wires = []
                 for wire in WIRES:
@@ -290,7 +292,7 @@ def working_circuit(btn_run_circuit, clamps):
                     num_coord = 0
 
                     count_wires_in_branch = count_coords - 1
-                    massive_wires_in_branches[num_brch] = ([None] * count_wires_in_branch)
+                    branches_[num_brch] = ([None] * count_wires_in_branch)
 
                     num_wire_in_brch = 0
                     while num_coord < count_coords and num_wire_in_brch < count_wires_in_branch:
@@ -309,7 +311,7 @@ def working_circuit(btn_run_circuit, clamps):
 
                             if (r_c == r_c_start_clamp_of_wire or r_c == r_c_end_clamp_of_wire) and (
                                     r_c_next == r_c_start_clamp_of_wire or r_c_next == r_c_end_clamp_of_wire):
-                                massive_wires_in_branches[num_brch][num_wire_in_brch] = buffer_wires[num_wire]
+                                branches_[num_brch][num_wire_in_brch] = buffer_wires[num_wire]
                                 buffer_wires.pop(num_wire)
                                 fl_wire_found = True
                                 num_wire_in_brch += 1
@@ -319,7 +321,7 @@ def working_circuit(btn_run_circuit, clamps):
 
                     num_brch += 1
 
-                return massive_wires_in_branches
+                return branches_
 
             def analise_branches(branches_):
                 """Подпрограмма анализирует ветви на возможные ошибки"""
@@ -366,10 +368,11 @@ def working_circuit(btn_run_circuit, clamps):
 
                     if not fl_error:
                         print('Массив ветвей по координатам зажимов определен')
-                        branches = create_massive_wires_branches(massive_row_column_in_branches)
+                        create_massive_wires_branches(massive_row_column_in_branches, branches)
                         fl_error, txt_error = analise_branches(branches)
                         if not fl_error:
                             print('Ветви полностью определены')
+
             return fl_error, txt_error
 
         from make_circuit_by_user import moving_wire_line
@@ -380,14 +383,13 @@ def working_circuit(btn_run_circuit, clamps):
         if moving_wire_line is None:
             flag_running = exchange_state_running(flag_running)
             if flag_running:
-                flag_error, text_error = recognition_circuit()
+                flag_error, text_error= recognition_circuit()
         else:
             flag_error = True
             text_error = 'Ошибка! Уберите руки от провода перед нажатием!'
 
         if flag_error:
             print(text_error)
-            # flag_running = exchange_state_running(flag_running) если все норм работает, удали
         else:
             pass
 
@@ -395,6 +397,7 @@ def working_circuit(btn_run_circuit, clamps):
 
 
 flag_running = False
-working_circuit(BUTTON_RUN, CLAMPS)
+BRANCHES = []
+working_circuit(BUTTON_RUN, CLAMPS, BRANCHES)
 
 root.mainloop()  # Должен находится в самом конце последнего исполняемого файла
