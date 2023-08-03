@@ -38,7 +38,8 @@ def bind_element_button(Class_this_element, list_elements_of_the_this_class, dra
                                              hl_wire.x_end, hl_wire.y_end, hl_wire.normal_length,
                                              hl_wire.clamp_start, hl_wire.clamp_end, hl_wire.width_lines,
                                              hl_wire.color_highlight,
-                                             hl_wire.color_lines, hl_wire, str(len(list_elements_of_the_class) + 1), COLOR_FULL_ID,  FONT_FULL_ID)
+                                             hl_wire.color_lines, hl_wire, str(len(list_elements_of_the_class) + 1),
+                                             COLOR_FULL_ID, FONT_FULL_ID)
         element_of_the_class.draw()
         list_elements_of_the_class.append(element_of_the_class)
 
@@ -46,8 +47,6 @@ def bind_element_button(Class_this_element, list_elements_of_the_this_class, dra
         frame_info.transition_to_standard_state()
 
         bind_element_to_click(element_of_the_class, list_elements_of_the_class)
-
-        # bind_all_possibilities_btn_of_group(hl_wire, Class_element, list_elements_of_the_class), если без него норм работает, то удали
 
     from make_display import root
     from options_visualization import COLOR_BG_WORKSPACE, COLOR_LINES, WIDTH_LINES
