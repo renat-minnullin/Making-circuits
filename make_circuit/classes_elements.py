@@ -28,9 +28,10 @@ class Wire(Element):
         self.clamp_start = clamp_start
         self.clamp_end = clamp_end
 
+        self.arrow_direction = ''  # 'last', 'first'
         self.elements_ids = []
 
-        self.parameters = [0,
+        self.parameters = ['-',
                            0,
                            0,
                            float('inf')]
@@ -40,6 +41,7 @@ class Wire(Element):
                                    False,
                                    False]
         self.title_element_id = None
+
     def draw(self):
 
         self.elements_ids = draw_wire(self.canvas, self.coord_start, self.coord_end,
@@ -57,7 +59,20 @@ class Wire(Element):
             elif 'arc' or 'oval' in tags:
                 self.canvas.itemconfig(id_piece_of_element, outline=color)
             if self.title_element_id is not None:
-                self.canvas.itemconfigure(self.title_element_id,fill=color)
+                self.canvas.itemconfigure(self.title_element_id, fill=color)
+
+    def create_direction(self):
+        """Метод задает направление тока от начального зажима к конечному"""
+        self.arrow_direction = draw_arrow(self.canvas, self.elements_ids, self.normal_length)
+
+    def change_direction(self):
+        """Метод меняет направление тока в элементе на противоположное"""
+        self.arrow_direction = change_direction_arrow(self.canvas, self.elements_ids, self.arrow_direction)
+
+    def delete_direction(self):
+        """Подпрограмма удаляет направление элемента"""
+        self.arrow_direction = delete_direction_arrow(self.canvas, self.elements_ids)
+
 
 class Connection(Element):
     """Данный класс отвечает за объект соединения исключительно двух проводов на одном clamp"""
@@ -116,6 +131,12 @@ class ElementStandardCircuit(Wire):
         self.color_full_id = color_full_id
 
         self.font_full_id = font_full_id
+        self.parameters = ['-',
+                           '-',
+                           0,
+                           float('inf')]
+
+        self.arrow_direction = 'No direction in parameter of element. Check direction of own_wire'
 
 
 class Resistor(ElementStandardCircuit):
@@ -243,10 +264,11 @@ class SourceCurrent(ElementStandardCircuit):
                                    True,
                                    False,
                                    False]
-        self.parameters = [0,
-                           0,
+        self.parameters = ['-',
+                           '-',
                            float('inf'),
                            0]
+
     def draw(self):
         self.elements_ids, self.title_element_id = total_draw_element(self.canvas, draw_current_source,
                                                                       self.coord_start, self.coord_end,

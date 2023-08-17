@@ -15,8 +15,7 @@ class Clamp:
 
         self.row = row
         self.column = column
-
-
+        self.coord = [row, column]
         self.x_left_up_circle = self.x_left_up_shell + self.indent
         self.y_left_up_circle = self.y_left_up_shell + self.indent
         self.x_right_down_circle = self.x_left_up_circle + self.radius_circle * 2
@@ -86,19 +85,57 @@ class FrameInfoElement(tk.LabelFrame):
         def save_parameters_in_element():
             """Подпрограмма отыгрывает нажатие на кнопку сохранения параметров элемента"""
 
+            def flag_all_directional_parameters_is_null_or_disabled():
+                """Подпрограмма отыгрывает все возможные случаи, когда нужно и не нужно удалять стрелку провода"""
+                flag_arrow_on_element = self.highlighted_element.arrow_direction != ''
+                if flag_arrow_on_element:
+                    flag_access_current = self.highlighted_element.accesses_to_change[0]
+                    flag_access_voltage = self.highlighted_element.accesses_to_change[1]
+                    flag_current_is_null = (self.entries_modules[0].get() == '-' or self.entry_angles[0].get() == '-')
+                    flag_voltage_is_null = (self.entries_modules[1].get() == '-' or self.entry_angles[1].get() == '-')
+
+                    flag_current_null_and_voltage_null = flag_current_is_null and flag_voltage_is_null
+                    flag_current_null_and_voltage_disabled = flag_current_is_null and not flag_access_voltage
+                    flag_voltage_null_and_current_disabled = flag_voltage_is_null and not flag_access_current
+                    if flag_current_null_and_voltage_null or flag_current_null_and_voltage_disabled or flag_voltage_null_and_current_disabled:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+
+            def flag_user_changed_directional_parameter(num_):
+                """Подпрограмма отыгрывает роль флага, говорящего, изменил ли пользователь направленный параметр"""
+                flag_current_was_change = (num_ == 0 and self.highlighted_element.accesses_to_change[num_] == True)
+                flag_voltage_was_change = (num_ == 1 and self.highlighted_element.accesses_to_change[num_] == True)
+                flag_element_dont_have_direction = self.highlighted_element.arrow_direction == ''
+
+                return (flag_current_was_change or flag_voltage_was_change) and flag_element_dont_have_direction
+
             def conversion_to_arithmetic_form(module_, angle_):
                 """Подпрограмма переводит из полярной формы в арифметическую"""
                 from cmath import rect
                 from math import radians
                 return rect(float(module_), radians(float(angle_)))
 
+            if flag_all_directional_parameters_is_null_or_disabled():
+                self.highlighted_element.delete_direction()
+
             for num in range(self.count_parameters):
                 module = self.entries_modules[num].get()
                 angle = self.entry_angles[num].get()
-                arithmetic_form = conversion_to_arithmetic_form(module, angle)
-                self.highlighted_element.parameters[num] = arithmetic_form
+
+                if module == '-' or angle == '-':
+                    self.highlighted_element.parameters[num] = '-'
+                else:
+                    arithmetic_form = conversion_to_arithmetic_form(module, angle)
+                    self.highlighted_element.parameters[num] = arithmetic_form
+
+                    if flag_user_changed_directional_parameter(num):
+                        self.highlighted_element.create_direction()
 
         self.name_element = '----'
+        self.highlighted_element = None
         self.color_bg = col_bg_info_frame
         self.color_text = col_text
         self.label_name_element = tk.Label(self, width=width, height=height,
@@ -136,9 +173,9 @@ class FrameInfoElement(tk.LabelFrame):
 
         self.frames_parameters = [None] * self.count_parameters
         self.label_parameters = [None] * self.count_parameters
-        self.modules_parameters = [0.0] * self.count_parameters
+        self.modules_parameters = ['-'] * self.count_parameters
         self.entries_modules = [None] * self.count_parameters
-        self.angles_parameters = [0.0] * self.count_parameters
+        self.angles_parameters = ['-'] * self.count_parameters
         self.entry_angles = [None] * self.count_parameters
 
         for num_par in range(self.count_parameters):
@@ -153,7 +190,6 @@ class FrameInfoElement(tk.LabelFrame):
                                                                            self.units_measurement[num_par],
                                                                            self.states_entries[num_par])
 
-        self.highlighted_element = None
         self.btn_save_parameters = tk.Button(self, text='Сохранить параметры', state='disabled',
                                              command=save_parameters_in_element)
         self.btn_save_parameters.grid(row=2, column=0, columnspan=2, pady=10)
@@ -182,25 +218,30 @@ class FrameInfoElement(tk.LabelFrame):
     def reload_values_of_parameters(self, parameters):
         """Метод обновляет значения всех параметров на информационной панели"""
 
-        def set_conversion_to_exponential_form_with_phase(complex_arith_value, module_var, angle_var):
+        def conversion_to_exponential_form_with_phase(complex_arith_value):
             """Подпрограмма преобразует арифметическое представление в полярное"""
             from math import degrees
             from cmath import polar
             complex_polar_value = polar(complex_arith_value)
-            module_of_parameter = complex_polar_value[0]
-            angle_of_parameter = degrees(complex_polar_value[1])
-            module_var.set(module_of_parameter)
-            angle_var.set(angle_of_parameter)
+            module = complex_polar_value[0]
+            angle = degrees(complex_polar_value[1])
+            return module, angle
 
         for num_per in range(self.count_parameters):
-            set_conversion_to_exponential_form_with_phase(parameters[num_per], self.modules_parameters[num_per],
-                                                          self.angles_parameters[num_per])
+
+            if parameters[num_per] == '-':
+                module_of_parameter, angle_of_parameter = '-', '-'
+            else:
+                module_of_parameter, angle_of_parameter = conversion_to_exponential_form_with_phase(parameters[num_per])
+
+            self.modules_parameters[num_per].set(module_of_parameter)
+            self.angles_parameters[num_per].set(angle_of_parameter)
 
     def transition_to_standard_state(self):
         """Метод, который переводит рамку в стандартное состояние"""
         self.exchange_name_element('----')
         self.reload_state_entries([False] * self.count_parameters)
-        self.reload_values_of_parameters([0.0] * self.count_parameters)
+        self.reload_values_of_parameters(['-'] * self.count_parameters)
         self.btn_save_parameters.config(state='disabled')
 
 
@@ -445,11 +486,12 @@ def make_frames_workspace(window, width_library,
                         from make_circuit_by_user import bind_element_button
                         bind_element_button(*tuple_charact_elems_[idx_group][idx_element])
 
-                    if isinstance(tuple_names_elems[index_group], str): # разветвление необходимо, чтобы обойти ошибку, при которой одиночный элемент разбивался на кучу элементов по одной букве
+                    if isinstance(tuple_names_elems[index_group],
+                                  str):  # разветвление необходимо, чтобы обойти ошибку, при которой одиночный элемент разбивался на кучу элементов по одной букве
                         text_button = tuple_names_elems[index_group_]
                     else:
                         text_button = tuple_names_elems[index_group_][
-                                                                 index_element_in_list_]
+                            index_element_in_list_]
                     btns[index_element_in_list_] = tk.Button(frame_library_elements,
                                                              text=text_button,
                                                              width=width_libr_xx // 10,
@@ -457,7 +499,8 @@ def make_frames_workspace(window, width_library,
                                                                                                      index_element_in_list_,
                                                                                                      tuple_charact_elems))
 
-                if isinstance(tuple_names_elems[index_group], str): # разветвление необходимо, чтобы обойти ошибку, при которой одиночный элемент разбивался на кучу элементов по одной букве
+                if isinstance(tuple_names_elems[index_group],
+                              str):  # разветвление необходимо, чтобы обойти ошибку, при которой одиночный элемент разбивался на кучу элементов по одной букве
                     count_element_in_group = 1
                 else:
                     count_element_in_group = len(tuple_names_elems[index_group])

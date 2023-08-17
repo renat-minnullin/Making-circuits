@@ -4,36 +4,35 @@ import tkinter as tk
 
 def total_draw_element(canvas, draw_function, coord_start, coord_end, normal_length, width_lines, full_id, color_lines,
                        color_full_id, font_full_id):
+    def __draw_full_id_nearby_element(canvas_, coord_start_, coord_end_, full_id_, color_full_id_, font_full_id_):
+        """Подпрограмма отрисовывает рядом с элементом его литеру и номер (full_id)"""
+        x_main_start = coord_start_[0]
+        y_main_start = coord_start_[1]
+        x_main_end = coord_end_[0]
+        y_main_end = coord_end_[1]
+        x_main_center = (x_main_start + x_main_end) / 2
+        y_main_center = (y_main_start + y_main_end) / 2
+
+        if x_main_start == x_main_end:
+            x_text = x_main_center + abs(y_main_start - y_main_end) / 3
+            y_text = y_main_center
+        elif y_main_start == y_main_end:
+            x_text = x_main_center
+            y_text = y_main_center + abs(x_main_start - x_main_end) / 3
+        else:
+            x_text = x_main_center
+            y_text = y_main_start
+
+        return canvas_.create_text(x_text, y_text, text=full_id_, fill=color_full_id_, font=font_full_id_)
+
     elements_ids = draw_function(canvas, coord_start, coord_end,
                                  normal_length,
                                  width_lines,
                                  color_lines)
-    title_element_id = draw_full_id_nearby_element(canvas, coord_start,
-                                                   coord_end, full_id,
-                                                   color_full_id, font_full_id)
+    title_element_id = __draw_full_id_nearby_element(canvas, coord_start,
+                                                     coord_end, full_id,
+                                                     color_full_id, font_full_id)
     return elements_ids, title_element_id
-
-
-def draw_full_id_nearby_element(canvas, coord_start, coord_end, full_id, color_full_id, font_full_id):
-    """Подпрограмма отрисовывает рядом с элементом его литеру и номер (full_id)"""
-    x_main_start = coord_start[0]
-    y_main_start = coord_start[1]
-    x_main_end = coord_end[0]
-    y_main_end = coord_end[1]
-    x_main_center = (x_main_start + x_main_end) / 2
-    y_main_center = (y_main_start + y_main_end) / 2
-
-    if x_main_start == x_main_end:
-        x_text = x_main_center + abs(y_main_start - y_main_end) / 3
-        y_text = y_main_center
-    elif y_main_start == y_main_end:
-        x_text = x_main_center
-        y_text = y_main_center + abs(x_main_start - x_main_end) / 3
-    else:
-        x_text = x_main_center
-        y_text = y_main_start
-
-    return canvas.create_text(x_text, y_text, text=full_id, fill=color_full_id, font=font_full_id)
 
 
 def calculating_intend_at_center_of_clamp(radius, x_center_start, y_center_start, x_center_end,
@@ -41,7 +40,7 @@ def calculating_intend_at_center_of_clamp(radius, x_center_start, y_center_start
     """Подпрограмма высчитывает смещение начала и конца провода, чтобы он шел не из центра, а с края круга"""
 
     from math import sin, cos
-    angle = definer_angle_inclination(x_center_start, y_center_start, x_center_end, y_center_end)
+    angle = __definer_angle_inclination(x_center_start, y_center_start, x_center_end, y_center_end)
     dx = radius * cos(angle)
     dy = radius * sin(angle)
 
@@ -53,7 +52,7 @@ def calculating_intend_at_center_of_clamp(radius, x_center_start, y_center_start
     return x_s, y_s, x_e, y_e
 
 
-def definer_angle_inclination(x_start, y_start, x_end, y_end):
+def __definer_angle_inclination(x_start, y_start, x_end, y_end):
     """Подпрограмма определяет угол поворота относительно начальной тригонометрической точки 0 градусов, до прямой,
     соединяющей две точки на плоскости"""
     from math import atan, pi
@@ -75,6 +74,54 @@ def definer_angle_inclination(x_start, y_start, x_end, y_end):
     return gamma
 
 
+def __define_end_contact(canvas_, elems_ids):
+    """Подпрограмма определяет последний контакт в каждом элементе"""
+    id_end_contact_ = -1
+    i = 0
+    while id_end_contact_ == -1 and i < len(elems_ids):
+        id = elems_ids[i]
+        tags = canvas_.gettags(id)
+
+        if 'end_contact' in tags:
+            id_end_contact_ = id
+        else:
+            i += 1
+    return id_end_contact_
+
+
+def draw_arrow(canvas, elements_ids, normal_length):
+    """Подпрограмма изображает стрелку направления тока на последнем контакте элемента"""
+    id_end_contact = __define_end_contact(canvas, elements_ids)
+    arrow_normal_length = normal_length / 8
+    arrow_tangen_length = normal_length / 6
+    arrow_width = normal_length / 15
+    arrow_parameters = str(arrow_normal_length) + ' ' + str(arrow_tangen_length) + ' ' + str(arrow_width)
+    arrow_direction = 'last'
+    canvas.itemconfig(id_end_contact, arrow=arrow_direction, arrowshape=arrow_parameters)
+
+    return arrow_direction
+
+
+def change_direction_arrow(canvas, elements_ids, arrow_direction):
+    """Подпрограмма изменяет стрелку направления тока на последнем элементе на противоположное"""
+    if arrow_direction == 'last':
+        arrow_direction = 'first'
+    else:
+        arrow_direction = 'last'
+    id_end_contact = __define_end_contact(canvas, elements_ids)
+    canvas.itemconfig(id_end_contact, arrow=arrow_direction)
+    return arrow_direction
+
+
+def delete_direction_arrow(canvas, elements_ids):
+    """Подпрограмма удаляет стрелку направления тока на последнем элементе"""
+    id_end_contact = __define_end_contact(canvas, elements_ids)
+    arrow_direction = ''
+    arrow_parameters = ('0', '0', '0')
+    canvas.itemconfig(id_end_contact, arrow=arrow_direction, arrowshape=arrow_parameters)
+    return arrow_direction
+
+
 def draw_node(canvas, coord, radius_clamp, width_line, col_lines, col_fill):
     x_main = coord[0]
     y_main = coord[1]
@@ -94,7 +141,7 @@ def draw_wire(canvas, coord_start, coord_end, width_line, col_lines):
 
     elements_ids = [
         canvas.create_line(x_main_start, y_main_start, x_main_end, y_main_end, width=width_line, fill=col_lines,
-                           tag=['line'])]
+                           tag=['line', 'end_contact', 'start_contact'])]
     return elements_ids
 
 
@@ -110,7 +157,7 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     length_contact = 0.6 * normal_length / 2 + additional_extension_contacts / 2
     length_main_part = 0.4 * normal_length
 
-    angle = definer_angle_inclination(x_main_start, y_main_start, x_main_end, y_main_end)
+    angle = __definer_angle_inclination(x_main_start, y_main_start, x_main_end, y_main_end)
     elements_ids = []
 
     # Первый контакт
@@ -122,7 +169,7 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     y_end = y_start - dy  # минус ставится из-за перевернутой системы координат
 
     elements_ids.append(
-        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line', 'start_contact']))
 
     # Верхняя половина первичной стенки резистора
     dx = width / 2 * cos(angle + pi / 2)
@@ -169,7 +216,8 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     y_end = y_start - dy
 
     elements_ids.append(
-        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines,
+                           tag=['line', 'end_contact']))
 
     # Нижняя половина вторичной стенки резистора
     dx = width / 2 * cos(angle - pi / 2)
@@ -217,7 +265,7 @@ def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, co
     length_contact = 0.94 * normal_length / 2 + additional_extension_contacts / 2
     length_between_plates = 0.06 * normal_length
 
-    angle = definer_angle_inclination(x_main_start, y_main_start, x_main_end, y_main_end)
+    angle = __definer_angle_inclination(x_main_start, y_main_start, x_main_end, y_main_end)
     elements_ids = []
 
     # Первый контакт
@@ -229,7 +277,7 @@ def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, co
     y_end = y_start - dy  # минус ставится из-за перевернутой системы координат
 
     elements_ids.append(
-        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line', 'start_contact']))
 
     buffer_x = x_end
     buffer_y = y_end
@@ -292,7 +340,8 @@ def draw_capacitor(canvas, coord_start, coord_end, normal_length, width_line, co
     x_end = x_start + dx
     y_end = y_start - dy
     elements_ids.append(
-        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines,
+                           tag=['line', 'end_contact']))
     return elements_ids
 
 
@@ -313,7 +362,7 @@ def draw_inductor_coil(canvas, coord_start, coord_end, normal_length, width_line
     radius = 1 / 15 * normal_length
     length_contact = 7 / 15 * normal_length / 2 + additional_extension_contacts / 2
 
-    angle = definer_angle_inclination(x_main_start, y_main_start, x_main_end, y_main_end)
+    angle = __definer_angle_inclination(x_main_start, y_main_start, x_main_end, y_main_end)
     elements_ids = []
 
     # Первый контакт
@@ -325,7 +374,7 @@ def draw_inductor_coil(canvas, coord_start, coord_end, normal_length, width_line
     y_end = y_start - dy
 
     elements_ids.append(
-        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line', 'start_contact']))
     # Повторяющиеся витки
     dx = radius * cos(angle)
     dy = radius * sin(angle)
@@ -354,7 +403,8 @@ def draw_inductor_coil(canvas, coord_start, coord_end, normal_length, width_line
     x_end = x_start + dx
     y_end = y_start - dy
     elements_ids.append(
-        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines,
+                           tag=['line', 'end_contact']))
 
     return elements_ids
 
@@ -370,7 +420,7 @@ def draw_source_of_emf(canvas, coord_start, coord_end, normal_length, width_line
     radius = 0.4 / 2 * normal_length
     length_contact = 0.6 * normal_length / 2 + additional_extension_contacts / 2
 
-    angle = definer_angle_inclination(x_main_start, y_main_start, x_main_end, y_main_end)
+    angle = __definer_angle_inclination(x_main_start, y_main_start, x_main_end, y_main_end)
     elements_ids = []
 
     # Первый контакт
@@ -382,7 +432,7 @@ def draw_source_of_emf(canvas, coord_start, coord_end, normal_length, width_line
     y_end = y_start - dy
 
     elements_ids.append(
-        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line', 'start_contact']))
 
     # Окружность
     dx = radius * cos(angle)
@@ -417,7 +467,8 @@ def draw_source_of_emf(canvas, coord_start, coord_end, normal_length, width_line
     x_end = x_start + dx
     y_end = y_start - dy
     elements_ids.append(
-        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines,
+                           tag=['line', 'end_contact']))
     return elements_ids
 
 
@@ -432,7 +483,7 @@ def draw_current_source(canvas, coord_start, coord_end, normal_length, width_lin
     radius = 0.4 / 2 * normal_length
     length_contact = 0.6 * normal_length / 2 + additional_extension_contacts / 2
 
-    angle = definer_angle_inclination(x_main_start, y_main_start, x_main_end, y_main_end)
+    angle = __definer_angle_inclination(x_main_start, y_main_start, x_main_end, y_main_end)
     elements_ids = []
 
     # Первый контакт
@@ -444,7 +495,7 @@ def draw_current_source(canvas, coord_start, coord_end, normal_length, width_lin
     y_end = y_start - dy
 
     elements_ids.append(
-        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line', 'start_contact']))
 
     # Окружность
     dx = radius * cos(angle)
@@ -495,7 +546,8 @@ def draw_current_source(canvas, coord_start, coord_end, normal_length, width_lin
     x_end = x_start + dx
     y_end = y_start - dy
     elements_ids.append(
-        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines, tag=['line']))
+        canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines,
+                           tag=['line', 'end_contact']))
     return elements_ids
 
 

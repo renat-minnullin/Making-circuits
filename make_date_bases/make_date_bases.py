@@ -137,12 +137,12 @@ def working_circuit(btn_run_circuit, clamps, branches):
                     Отрабатывается только для случая с одной ветвью и без узлов"""
                     if coord not in list_massive_row_col_branch_clamps[0]:
                         list_massive_row_col_branch_clamps[0].append(coord)
-                        list_r_c_connected_clamps = buffer_massive_all_list_row_col_connected_clamps[coord[0]][coord[1]]
-
-                        if list_r_c_connected_clamps[0] in list_massive_row_col_branch_clamps[0]:
-                            new_coord = list_r_c_connected_clamps[1]
-                        else:
+                        list_r_c_connected_clamps = clamps[coord[0]][coord[1]].list_row_col_connected_clamps.copy()
+                        if list_r_c_connected_clamps[0] not in list_massive_row_col_branch_clamps[0]:
                             new_coord = list_r_c_connected_clamps[0]
+                        else:
+                            new_coord = list_r_c_connected_clamps[1]
+
                         bypassing_single_branch(new_coord, list_massive_row_col_branch_clamps)
 
                 def bypassing_branch(coord, list_massive_row_col_branch_clamps, massive_r_c_nodes, idx_brch):
@@ -171,7 +171,7 @@ def working_circuit(btn_run_circuit, clamps, branches):
 
                     if fl_coord_need_check(coord, list_massive_row_col_branch_clamps[idx_brch]):
                         list_massive_row_col_branch_clamps[idx_brch].append(coord)
-                        list_r_c_connected_clamps = buffer_massive_all_list_row_col_connected_clamps[coord[0]][coord[1]]
+                        list_r_c_connected_clamps = buffer_all_list_r_c_connected_clamps[coord[0]][coord[1]]
 
                         if fl_branch_end(coord, massive_r_c_nodes, list_massive_row_col_branch_clamps[idx_brch]):
                             print('Ветвь №{0:2d} определена'.format(idx_brch))
@@ -187,7 +187,7 @@ def working_circuit(btn_run_circuit, clamps, branches):
                             bypassing_branch(new_coord, list_massive_row_col_branch_clamps, massive_r_c_nodes,
                                              idx_brch)
 
-                buffer_massive_all_list_row_col_connected_clamps = create_buffer_massive_all_list_row_col_connected_clamps()
+                buffer_all_list_r_c_connected_clamps = create_buffer_massive_all_list_row_col_connected_clamps()
                 list_massive_row_column_branch_clamps = []
 
                 if len(massive_row_col_nodes) == 0:
@@ -196,6 +196,7 @@ def working_circuit(btn_run_circuit, clamps, branches):
                     bypassing_single_branch(start_coord, list_massive_row_column_branch_clamps)
                     list_massive_row_column_branch_clamps[0].append(list_massive_row_column_branch_clamps[0][0])
                     # добавляю в конец ветви начальный зажим, чтобы было как в случае для нескольких ветвей
+                    print(list_massive_row_column_branch_clamps)
                 else:
                     buffer_massive_row_col_nodes = massive_row_col_nodes.copy()
 
@@ -210,19 +211,19 @@ def working_circuit(btn_run_circuit, clamps, branches):
                         end_coord_node = list_massive_row_column_branch_clamps[index_branch][-1]
 
                         coord_first_clamp_after_start_node = list_massive_row_column_branch_clamps[index_branch][1]
-                        buffer_massive_all_list_row_col_connected_clamps[start_coord_node[0]][
-                            start_coord_node[1]].remove(
+
+                        buffer_all_list_r_c_connected_clamps[start_coord_node[0]][start_coord_node[1]].remove(
                             coord_first_clamp_after_start_node)
 
-                        if len(buffer_massive_all_list_row_col_connected_clamps[start_coord_node[0]][
+                        if len(buffer_all_list_r_c_connected_clamps[start_coord_node[0]][
                                    start_coord_node[1]]) == 0:
                             buffer_massive_row_col_nodes.remove(start_coord_node)
 
                         coord_last_clamp_before_end_node = list_massive_row_column_branch_clamps[index_branch][-2]
-                        buffer_massive_all_list_row_col_connected_clamps[end_coord_node[0]][
+                        buffer_all_list_r_c_connected_clamps[end_coord_node[0]][
                             end_coord_node[1]].remove(coord_last_clamp_before_end_node)
 
-                        if len(buffer_massive_all_list_row_col_connected_clamps[end_coord_node[0]][
+                        if len(buffer_all_list_r_c_connected_clamps[end_coord_node[0]][
                                    end_coord_node[1]]) == 0:
                             buffer_massive_row_col_nodes.remove(end_coord_node)
 
@@ -397,7 +398,7 @@ def working_circuit(btn_run_circuit, clamps, branches):
 
 
 flag_running = False
-BRANCHES = []
-working_circuit(BUTTON_RUN, CLAMPS, BRANCHES)
+BRANCHES_NEED_DELETE = []
+working_circuit(BUTTON_RUN, CLAMPS, BRANCHES_NEED_DELETE)
 
 root.mainloop()  # Должен находится в самом конце последнего исполняемого файла

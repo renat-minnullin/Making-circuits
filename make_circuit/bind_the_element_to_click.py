@@ -1,11 +1,5 @@
 def bind_element_to_click(element_of_class, list_elements_of_class):
     """Подпрограмма отрабатывает нажатие по любой части элемента и биндит его удаление или переключение"""
-    from make_display import root, WORKSPACE
-    canvas = WORKSPACE
-
-    for id_piece_element in element_of_class.elements_ids:
-        canvas.tag_bind(id_piece_element, '<Button-1>',
-                        lambda element: click_left_btn_mouse_on_element(element_of_class, list_elements_of_class))
 
     def click_left_btn_mouse_on_element(element, list_elements_class):
         """Подпрограмма отработки события нажатия на элемент"""
@@ -53,6 +47,7 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
             if element_highlighted[0]:
 
                 delete_all_part_of_element(element.elements_ids)
+                canvas.delete(element.title_element_id)
 
                 list_elements_class.remove(element)
 
@@ -81,9 +76,68 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
             frame_info.highlighted_element = element
             frame_info.exchange_name_element(element.name)
             frame_info.reload_state_entries(element.accesses_to_change)
-            frame_info.btn_save_parameters.config( state='normal')
+            frame_info.btn_save_parameters.config(state='normal')
             frame_info.reload_values_of_parameters(element.parameters)
 
             element.exchange_color(element.color_highlight)
             element_highlighted[0] = element
             root.bind('<Delete>', delete_highlighted_element)
+        print(element)
+    def click_double_left_btn_mouse_on_element(element):
+        """Подпрограмма отрабатывает двойное нажатие левой кнопкой мыши по элементу, благодаря которому на элементе либо
+        появляется направление графа, в случае, если такого направления не было, либо меняется на противоположное, если
+        такое направление было"""
+
+        def define_branch_of_wire(wire_, branches):
+            """Подпрограмма определяет ветвь, в которой содержится данный провод"""
+            branch_of_wire_ = None
+            for brch in branches:
+                if wire_ in brch.own_wires:
+                    branch_of_wire_ = brch
+            if branch_of_wire_ is None:
+                print(
+                    'Непредвиденная ошибка, не удается определить ветвь элемента, в котором происходит задание/изменение направления')
+            else:
+                return branch_of_wire_
+
+        def set_the_direction(wire_, branch_of_wire_):
+            """Подпрограмма устанавливает направление провода и передает его на всю ветвь"""
+            wire_.create_direction()
+            arrow_direction_of_branch = branch_of_wire_.define_direction(wire_)
+            branch_of_wire_.arrow_direction = arrow_direction_of_branch
+            branch_of_wire_.set_directions_of_wires_in_direction_of_branch()
+            branch_of_wire_.main_wire = wire_
+
+        def change_the_direction(wire_, branch_of_wire_):
+            """Подпрограмма изменяет уже установленное направление провода и ветви на противоположное"""
+            branch_of_wire_.main_wire.delete_direction()
+            branch_of_wire_.main_wire = wire_
+
+            last_arrow_direction = define_direction(wire_)
+
+            wire_.arrow_direction = last_arrow_direction
+            wire_.change_direction()
+            branch_of_wire_.change_direction()
+            branch_of_wire_.set_directions_of_wires_in_direction_of_branch()
+
+        from make_circuit_by_user import BRANCHES
+
+        if element.__class__.__name__ == 'Wire':
+            wire = element
+        else:
+            wire = element.own_wire
+
+        branch_of_wire = define_branch_of_wire(wire, BRANCHES)
+        if branch_of_wire.arrow_direction == '':
+            set_the_direction(wire, branch_of_wire)
+        else:
+            change_the_direction(wire, branch_of_wire)
+
+    from make_display import root, WORKSPACE
+    canvas = WORKSPACE
+
+    for id_piece_element in element_of_class.elements_ids:
+        canvas.tag_bind(id_piece_element, '<Button-1>',
+                        lambda element: click_left_btn_mouse_on_element(element_of_class, list_elements_of_class))
+        canvas.tag_bind(id_piece_element, '<Double-Button-1>',
+                        lambda element: click_double_left_btn_mouse_on_element(element_of_class))
