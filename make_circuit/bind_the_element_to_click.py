@@ -42,7 +42,8 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
                     canvas.delete(id_piece_elem)
 
             # ---Вход при нажатии клавиши DELETE при выделенном элементе---
-            from make_circuit_by_user import element_highlighted
+            from make_circuit_by_user import element_highlighted, BRANCHES
+            from reload_dates import reload_branches_when_deleting_wire
 
             if element_highlighted[0]:
 
@@ -53,6 +54,7 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
 
                 if element.__class__.__name__ == 'Wire':
                     reload_massive_clamped_clamps(element.clamp_start, element.clamp_end)
+                    reload_branches_when_deleting_wire(BRANCHES, element)
                     delete_clamps_connections(element.clamp_start, element.clamp_end)
                 else:
                     canvas.itemconfig(element.own_wire.elements_ids[0], state='normal')
@@ -83,6 +85,7 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
             element_highlighted[0] = element
             root.bind('<Delete>', delete_highlighted_element)
         print(element)
+
     def click_double_left_btn_mouse_on_element(element):
         """Подпрограмма отрабатывает двойное нажатие левой кнопкой мыши по элементу, благодаря которому на элементе либо
         появляется направление графа, в случае, если такого направления не было, либо меняется на противоположное, если

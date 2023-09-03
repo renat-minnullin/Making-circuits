@@ -127,10 +127,13 @@ class FrameInfoElement(tk.LabelFrame):
 
                 if module == '-' or angle == '-':
                     self.highlighted_element.parameters[num] = '-'
+                    if num == 0:
+                        self.highlighted_element.branch.current = '-'
                 else:
                     arithmetic_form = conversion_to_arithmetic_form(module, angle)
                     self.highlighted_element.parameters[num] = arithmetic_form
-
+                    if num == 0:
+                        self.highlighted_element.branch.current = arithmetic_form
                     if flag_user_changed_directional_parameter(num):
                         self.highlighted_element.create_direction()
 

@@ -204,7 +204,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                 from drawing_elements import calculating_intend_at_center_of_clamp
                 from options_visualization import NORMAL_LENGTH
                 from bind_the_element_to_click import bind_element_to_click
-                from reload_dates import reload_branches, reload_nodes
+                from reload_dates import reload_branches_when_creating_wire, reload_nodes
 
                 global BRANCHES, NODES
                 x_start_wire, y_start_wire, x_end_wire, y_end_wire = calculating_intend_at_center_of_clamp(
@@ -218,7 +218,7 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
 
                 bind_element_to_click(wire, wires)
 
-                reload_branches(BRANCHES, wire)
+                reload_branches_when_creating_wire(BRANCHES, wire)
                 reload_nodes(NODES)
 
             from make_display import root

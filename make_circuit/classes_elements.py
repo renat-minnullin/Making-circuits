@@ -41,7 +41,7 @@ class Wire(Element):
                                    False,
                                    False]
         self.title_element_id = None
-
+        self.branch = None
     def draw(self):
 
         self.elements_ids = draw_wire(self.canvas, self.coord_start, self.coord_end,
