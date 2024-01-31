@@ -103,23 +103,29 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
             else:
                 return branch_of_wire_
 
-        def set_the_direction(wire_, branch_of_wire_):
+        def set_the_direction(element_, wire_, branch_of_wire_):
             """Подпрограмма устанавливает направление провода и передает его на всю ветвь"""
-            wire_.create_direction()
+            wire_.create_direction(element_.elements_ids)
             arrow_direction_of_branch = branch_of_wire_.define_direction(wire_)
             branch_of_wire_.arrow_direction = arrow_direction_of_branch
             branch_of_wire_.set_directions_of_wires_in_direction_of_branch()
             branch_of_wire_.main_wire = wire_
 
-        def change_the_direction(wire_, branch_of_wire_):
+            print(branch_of_wire_)
+            print(branch_of_wire_.arrow_direction)
+            print(branch_of_wire_.main_wire)
+            for wirex in branch_of_wire_.own_wires:
+                print(wirex.arrow_direction)
+                print(wirex.clamp_start.coord)
+                print(wirex.clamp_end.coord)
+
+        def change_the_direction(element_, wire_, branch_of_wire_):
             """Подпрограмма изменяет уже установленное направление провода и ветви на противоположное"""
-            branch_of_wire_.main_wire.delete_direction()
+            branch_of_wire_.main_wire.delete_direction(element_.elements_ids)
             branch_of_wire_.main_wire = wire_
+            wire_.arrow_direction = branch_of_wire_.arrow_direction
 
-            last_arrow_direction = define_direction(wire_)
-
-            wire_.arrow_direction = last_arrow_direction
-            wire_.change_direction()
+            wire_.change_direction(element_.elements_ids)
             branch_of_wire_.change_direction()
             branch_of_wire_.set_directions_of_wires_in_direction_of_branch()
 
@@ -131,14 +137,15 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
             wire = element.own_wire
 
         branch_of_wire = define_branch_of_wire(wire, BRANCHES)
+
         if branch_of_wire.arrow_direction == '':
-            set_the_direction(wire, branch_of_wire)
+            set_the_direction(element, wire, branch_of_wire)
         else:
-            change_the_direction(wire, branch_of_wire)
+            change_the_direction(element, wire, branch_of_wire)
 
     from make_display import root, WORKSPACE
     canvas = WORKSPACE
-
+    #STOP ПОЛНОСТЬЮ ПЕРЕСМОТРИ ПОНЯТИЕ НАПРАВЛЕНИЯ
     for id_piece_element in element_of_class.elements_ids:
         canvas.tag_bind(id_piece_element, '<Button-1>',
                         lambda element: click_left_btn_mouse_on_element(element_of_class, list_elements_of_class))

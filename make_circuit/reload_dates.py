@@ -48,7 +48,7 @@ class Branch:
                     wire_.arrow_direction == 'first' and index_coord_start > index_coord_end)
 
         for wire in self.own_wires:
-            if flag_direction_wire_and_branch_coincide(wire_):
+            if flag_direction_wire_and_branch_coincide(wire):
                 wire.arrow_direction = self.arrow_direction
             elif wire.arrow_direction == 'last':
                 wire.arrow_direction = 'first'
@@ -414,7 +414,7 @@ def reload_branches_when_creating_wire(branches, wire):
             print('Непредвиденная ошибка! Неопределенный зажим')
     reload_start_and_end_coord_of_all_branches(branches)
 
-    i = 0
+    """i = 0
     for branch in branches:
         print('_________Ветвь номер {0:2d}_________'.format(i))
         print(branch)
@@ -422,7 +422,7 @@ def reload_branches_when_creating_wire(branches, wire):
             print(attr, getattr(branch, attr))
         print('____________________________________')
         i += 1
-    print('\n\n')
+    print('\n\n')"""
 
 
 def reload_branches_when_deleting_wire(branches, wire):

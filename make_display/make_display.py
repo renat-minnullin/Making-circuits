@@ -276,7 +276,7 @@ class AreaQuickAccess(tk.Canvas):
 
 
 def input_options_window(path_fin):
-    """Подпрограмма вводит размер окна и тип тока в цепи из файла с названием path_file_input"""
+    """Подпрограмма вводит размер окна и тип тока в цепи из файла с названием options_window.txt"""
     fin = open(path_fin, 'r')
     fin.readline()
     fin.readline()
@@ -289,6 +289,7 @@ def input_options_window(path_fin):
 
 
 def make_main_window(width, height, location, title, path_icon):
+    """Подпрограмма создает основное окно"""
     window = tk.Tk()
     window.title(title)
     window.geometry(str(width) + 'x' + str(height) + location)
@@ -310,7 +311,7 @@ def make_frames_info(width_frame, height_string):
             if name_file:
                 print(name_file)
             else:
-                print('Имя пустое')
+                print('Строка имени пустая')
 
         frame_info_circuit = tk.LabelFrame(main_frame, text='Параметры цепи', bg=col_bg_info_frame, fg=col_text)
         frame_info_circuit.grid(column=0, row=0, stick='w', padx=5)
@@ -590,7 +591,7 @@ path_main_icon = 'Icons/left_angle_main_icon.png'
 
 root = make_main_window(WIDTH_WINDOW, HEIGHT_WINDOW, LOCATION, TITLE, path_main_icon)
 
-MAX_COUNT_SIMBOLS_LIST_NGE = ''
+MAX_COUNT_SIMBOLS_LIST_NGE = '' #???
 
 WIDTH_INFO_FRAME = 40  # Количество символов в строке рамки информации
 HEIGHT_STRING_INFO_FRAME = 1
@@ -607,7 +608,6 @@ MIN_WIDTH_ONE_AREA_QUICK_ACCESS = 80
 HEIGHT_WORKSPACE = HEIGHT_WINDOW - HEIGHT_QUICK_ACCESS - 3  # небольшой отступ от нижней стороны
 
 CLAMPS, WORKSPACE = make_frames_workspace(root,
-
                                           WIDTH_LIBRARY,
                                           WIDTH_WORKSPACE,
                                           HEIGHT_WORKSPACE,
