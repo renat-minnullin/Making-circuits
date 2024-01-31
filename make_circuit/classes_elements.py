@@ -29,6 +29,10 @@ class Wire(Element):
         self.clamp_end = clamp_end
 
         self.arrow_direction = ''  # 'last', 'first'
+
+        self.arrow_parameters = str(self.normal_length / 8) + ' ' + str(self.normal_length / 6) + ' ' + str(
+            self.normal_length / 15)
+
         self.elements_ids = []
 
         self.parameters = ['-',
@@ -42,6 +46,7 @@ class Wire(Element):
                                    False]
         self.title_element_id = None
         self.branch = None
+
     def draw(self):
 
         self.elements_ids = draw_wire(self.canvas, self.coord_start, self.coord_end,
@@ -61,17 +66,33 @@ class Wire(Element):
             if self.title_element_id is not None:
                 self.canvas.itemconfigure(self.title_element_id, fill=color)
 
-    def create_direction(self):
-        """Метод задает направление тока от начального зажима к конечному"""
-        self.arrow_direction = draw_arrow(self.canvas, self.elements_ids, self.normal_length)
+    def create_direction(self, out_elements_ids):
+        """Метод задает направление тока от начального зажима к конечному, при этом на входе
+        поступает список индексов линий прикрепленного элемента (либо самого провода, если такого элемента нет)"""
+        self.arrow_direction = draw_arrow(self.canvas, out_elements_ids, self.arrow_parameters)
 
-    def change_direction(self):
-        """Метод меняет направление тока в элементе на противоположное"""
-        self.arrow_direction = change_direction_arrow(self.canvas, self.elements_ids, self.arrow_direction)
+    def change_direction(self, out_elements_ids):
+        """Метод меняет направление тока в элементе на противоположное, при этом на входе
+        поступает список индексов линий прикрепленного элемента (либо самого провода, если такого элемента нет)"""
 
-    def delete_direction(self):
-        """Подпрограмма удаляет направление элемента"""
-        self.arrow_direction = delete_direction_arrow(self.canvas, self.elements_ids)
+        self.arrow_direction = change_direction_arrow(self.canvas, out_elements_ids, self.arrow_direction,
+                                                      self.arrow_parameters)
+
+
+    def delete_direction(self, out_elements_ids):
+        """Подпрограмма удаляет направление элемента, при этом на входе
+        поступает список индексов линий прикрепленного элемента (либо самого провода, если такого элемента нет)"""
+        self.arrow_direction = delete_direction_arrow(self.canvas, out_elements_ids)
+
+    def synchronizing_wire_with_branch(self, brch_own_coords):
+        """Метод меняет местами начальную и конечную координату зажимов провода так, чтобы они были в списке зажимов ветви
+        в установленном в ней порядке - от начала ветви к концу ветви."""
+
+        if brch_own_coords.index(self.clamp_start.coord) > brch_own_coords.index(self.clamp_end.coord):
+            self.clamp_start, self.clamp_end = self.clamp_end, self.clamp_start
+            self.coord_start, self.coord_end = self.coord_end, self.coord_start
+            self.x_start, self.x_end = self.x_end, self.x_start
+            self.y_start, self.y_end = self.y_end, self.y_start
 
 
 class Connection(Element):

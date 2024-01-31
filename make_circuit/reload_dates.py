@@ -48,7 +48,7 @@ class Branch:
                     wire_.arrow_direction == 'first' and index_coord_start > index_coord_end)
 
         for wire in self.own_wires:
-            if flag_direction_wire_and_branch_coincide(wire_):
+            if flag_direction_wire_and_branch_coincide(wire):
                 wire.arrow_direction = self.arrow_direction
             elif wire.arrow_direction == 'last':
                 wire.arrow_direction = 'first'
@@ -133,6 +133,7 @@ def reload_branches_when_creating_wire(branches, wire):
                     num_brch += 1
 
             return branch_of_wire_
+
 
         branch_ = define_branch_of_wire(wire_)
         add_wire_in_branch(branch_, wire_)
@@ -414,15 +415,21 @@ def reload_branches_when_creating_wire(branches, wire):
             print('Непредвиденная ошибка! Неопределенный зажим')
     reload_start_and_end_coord_of_all_branches(branches)
 
-    i = 0
-    for branch in branches:
-        print('_________Ветвь номер {0:2d}_________'.format(i))
-        print(branch)
-        for attr in ['start_coord', 'end_coord', 'own_coords', 'own_wires', 'main_wire', 'current', 'arrow_direction']:
-            print(attr, getattr(branch, attr))
-        print('____________________________________')
-        i += 1
-    print('\n\n')
+    TEST = True  # Флаг, отвечающий за включение и отключение выдачи полной информации о ветвях
+    if TEST:
+        print(wire)
+        print("start_coord " + str(wire.clamp_start.coord))
+        print("end_coord " + str(wire.clamp_end.coord))
+        i = 0
+        for branch in branches:
+            print('_________Ветвь номер {0:2d}_________'.format(i))
+            print(branch)
+            for attr in ['start_coord', 'end_coord', 'own_coords', 'own_wires', 'main_wire', 'current',
+                         'arrow_direction']:
+                print(attr, getattr(branch, attr))
+            print('____________________________________')
+            i += 1
+        print('\n\n')
 
 
 def reload_branches_when_deleting_wire(branches, wire):
