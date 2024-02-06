@@ -9,52 +9,6 @@ class Branch:
         self.current = '-'
         self.arrow_direction = ''  # 'last', 'first'
 
-    def define_direction(self, wire):
-        """Метод определяет направление ветви по уже выбранному направлению провода, включенного в данную ветвь"""
-
-        def flag_direction_wire_and_branch_coincide(wire_):
-            """Подпрограмма отрабатывает функцию флага совпадения направления провода и ветви"""
-            coord_start = wire_.clamp_start.coord
-            coord_end = wire_.clamp_end.coord
-            index_coord_start = self.own_coords.index(coord_start)
-            index_coord_end = self.own_coords.index(coord_end)
-
-            return (wire_.arrow_direction == 'last' and index_coord_start < index_coord_end) or (
-                    wire_.arrow_direction == 'first' and index_coord_start > index_coord_end)
-
-        if wire not in self.own_wires:
-            print('Непредвиденная ошибка! Данного провода нет в списке проводов данной ветви')
-        else:
-            if flag_direction_wire_and_branch_coincide(wire):
-                arrow_direction = wire.arrow_direction
-            elif wire.arrow_direction == 'last':
-                arrow_direction = 'first'
-            else:
-                arrow_direction = 'last'
-
-            return arrow_direction
-
-    def set_directions_of_wires_in_direction_of_branch(self):
-        """Метод изменяет направление всех проводов ветви согласно направлению ветви"""
-
-        def flag_direction_wire_and_branch_coincide(wire_):
-            """Подпрограмма отрабатывает функцию флага совпадения направления провода и ветви"""
-            coord_start = wire_.clamp_start.coord
-            coord_end = wire_.clamp_end.coord
-            index_coord_start = self.own_coords.index(coord_start)
-            index_coord_end = self.own_coords.index(coord_end)
-
-            return (wire_.arrow_direction == 'last' and index_coord_start < index_coord_end) or (
-                    wire_.arrow_direction == 'first' and index_coord_start > index_coord_end)
-
-        for wire in self.own_wires:
-            if flag_direction_wire_and_branch_coincide(wire):
-                wire.arrow_direction = self.arrow_direction
-            elif wire.arrow_direction == 'last':
-                wire.arrow_direction = 'first'
-            else:
-                wire.arrow_direction = 'last'
-
     def change_direction(self):
         """Метод меняет направление ветви на противоположное. Важно: используется только тогда, когда направление уже
         было задано"""
@@ -134,11 +88,11 @@ def reload_branches_when_creating_wire(branches, wire):
 
             return branch_of_wire_
 
-
         branch_ = define_branch_of_wire(wire_)
         add_wire_in_branch(branch_, wire_)
         add_coords_of_wire_in_branch(wire_.clamp_start.coord, wire_.clamp_end.coord, branch_)
         wire_.branch = branch_
+        wire_.synchronizing_wire_with_branch(branch_)
 
     def divide_branch_with_clamp(division_coord):
         """Подпрограмма разделяет ветвь на две дочерние, одна из которых будет новой, а другая останется старой с учетом
@@ -415,7 +369,7 @@ def reload_branches_when_creating_wire(branches, wire):
             print('Непредвиденная ошибка! Неопределенный зажим')
     reload_start_and_end_coord_of_all_branches(branches)
 
-    TEST = True  # Флаг, отвечающий за включение и отключение выдачи полной информации о ветвях
+    TEST = False  # Флаг, отвечающий за включение и отключение выдачи полной информации о ветвях
     if TEST:
         print(wire)
         print("start_coord " + str(wire.clamp_start.coord))
@@ -663,15 +617,18 @@ def reload_branches_when_deleting_wire(branches, wire):
             print('Непредвиденная ошибка! Неопределенный зажим')
     reload_start_and_end_coord_of_all_branches(branches)
 
-    i = 0
-    for branch in branches:
-        print('_________Ветвь номер {0:2d}_________'.format(i))
-        print(branch)
-        for attr in ['start_coord', 'end_coord', 'own_coords', 'own_wires', 'main_wire', 'current', 'arrow_direction']:
-            print(attr, getattr(branch, attr))
-        print('____________________________________')
-        i += 1
-    print('\n\n')
+    TEST = False
+    if TEST:
+        i = 0
+        for branch in branches:
+            print('_________Ветвь номер {0:2d}_________'.format(i))
+            print(branch)
+            for attr in ['start_coord', 'end_coord', 'own_coords', 'own_wires', 'main_wire', 'current',
+                         'arrow_direction']:
+                print(attr, getattr(branch, attr))
+            print('____________________________________')
+            i += 1
+        print('\n\n')
 
 
 def reload_nodes(nodes):

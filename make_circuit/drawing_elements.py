@@ -104,16 +104,9 @@ def draw_arrow(canvas, elements_ids, arrow_parameters):
 
 def change_direction_arrow(canvas, elements_ids, arrow_direction, arrow_parameters):
     """Подпрограмма изменяет стрелку направления тока на последнем элементе на противоположное"""
-
-    if arrow_direction == 'last':
-        arrow_direction = 'first'
-    else:
-        arrow_direction = 'last'
-
     id_end_contact = __define_end_contact(canvas, elements_ids)
     canvas.itemconfig(id_end_contact, arrow=arrow_direction, arrowshape=arrow_parameters)
 
-    return arrow_direction
 
 
 def delete_direction_arrow(canvas, elements_ids):
