@@ -46,6 +46,7 @@ class Wire(Element):
                                    False]
         self.title_element_id = None
         self.branch = None
+        self.element = None
 
     def draw(self):
 

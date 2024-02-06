@@ -504,7 +504,7 @@ def make_frames_workspace(window, width_library,
                                                                                                      tuple_charact_elems))
 
                 if isinstance(tuple_names_elems[index_group],
-                              str):  # разветвление необходимо, чтобы обойти ошибку, при которой одиночный элемент разбивался на кучу элементов по одной букве
+                              str):  # условие необходимо, чтобы обойти ошибку, при которой одиночная кнопка трансформировалась в несколько кнопок по одной букве
                     count_element_in_group = 1
                 else:
                     count_element_in_group = len(tuple_names_elems[index_group])

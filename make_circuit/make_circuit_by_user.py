@@ -42,6 +42,7 @@ def bind_element_button(Class_this_element, list_elements_of_the_this_class, dra
                                              COLOR_FULL_ID, FONT_FULL_ID)
         element_of_the_class.draw()
         list_elements_of_the_class.append(element_of_the_class)
+        hl_wire.element = element_of_the_class
 
         frame_info = FRAME_INFO_ABOUT_ELEMENT
         frame_info.transition_to_standard_state()

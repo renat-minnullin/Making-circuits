@@ -242,15 +242,19 @@ def reload_branches_when_creating_wire(branches, wire):
                     main_branch.own_wires.insert(0, wire_x)
                     main_branch.own_coords.insert(0, wire_x.clamp_start.coord)
 
-                    if wire_x.clamp_start.cord == attached_branch.start_coord:
+                    if wire_x.clamp_start.coord == attached_branch.start_coord:
                         main_branch.own_wires = attached_branch.own_wires + main_branch.own_wires
                         main_branch.own_coords = attached_branch.own_coords[
                                                  :len(attached_branch.own_coords) - 1] + main_branch.own_coords
 
                     else:
                         main_branch.own_wires = attached_branch.own_wires[::-1] + main_branch.own_wires
-                        main_branch.own_coords = attached_branch.own_coords[1:][::-1] + main_branch.own_coords
+                        main_branch.own_coords = attached_branch.own_coords[:-1] + main_branch.own_coords
 
+                if attached_branch.main_wire.element is None:
+                    attached_branch.main_wire.delete_direction(attached_branch.main_wire.elements_ids)
+                else:
+                    attached_branch.main_wire.delete_direction(attached_branch.main_wire.element.elements_ids)
                 branches.remove(attached_branch)
                 attached_branch.__del__()
 
@@ -369,11 +373,8 @@ def reload_branches_when_creating_wire(branches, wire):
             print('Непредвиденная ошибка! Неопределенный зажим')
     reload_start_and_end_coord_of_all_branches(branches)
 
-    TEST = False  # Флаг, отвечающий за включение и отключение выдачи полной информации о ветвях
+    TEST = True  # Флаг, отвечающий за включение и отключение выдачи полной информации о ветвях
     if TEST:
-        print(wire)
-        print("start_coord " + str(wire.clamp_start.coord))
-        print("end_coord " + str(wire.clamp_end.coord))
         i = 0
         for branch in branches:
             print('_________Ветвь номер {0:2d}_________'.format(i))

@@ -108,7 +108,6 @@ def change_direction_arrow(canvas, elements_ids, arrow_direction, arrow_paramete
     canvas.itemconfig(id_end_contact, arrow=arrow_direction, arrowshape=arrow_parameters)
 
 
-
 def delete_direction_arrow(canvas, elements_ids):
     """Подпрограмма удаляет стрелку направления тока на последнем элементе"""
     id_end_contact = __define_end_contact(canvas, elements_ids)

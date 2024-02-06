@@ -84,7 +84,6 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
             element.exchange_color(element.color_highlight)
             element_highlighted[0] = element
             root.bind('<Delete>', delete_highlighted_element)
-        print(element)
 
     def click_double_left_btn_mouse_on_element(element):
         """Подпрограмма отрабатывает двойное нажатие левой кнопкой мыши по элементу, благодаря которому на элементе либо
