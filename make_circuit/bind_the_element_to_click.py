@@ -84,7 +84,7 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
             element.exchange_color(element.color_highlight)
             element_highlighted[0] = element
             root.bind('<Delete>', delete_highlighted_element)
-
+            print(element)
     def click_double_left_btn_mouse_on_element(element):
         """Подпрограмма отрабатывает двойное нажатие левой кнопкой мыши по элементу, благодаря которому на элементе либо
         появляется направление графа, в случае, если такого направления не было, либо меняется на противоположное, если
@@ -98,7 +98,11 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
 
         def change_the_direction(element_, wire_, branch_of_wire_):
             """Подпрограмма изменяет уже установленное направление провода и ветви на противоположное"""
-            branch_of_wire_.main_wire.delete_direction(element_.elements_ids)
+            if branch_of_wire_.main_wire.element is None:
+                branch_of_wire_.main_wire.delete_direction(branch_of_wire_.main_wire.elements_ids)
+            else:
+                branch_of_wire_.main_wire.delete_direction(branch_of_wire_.main_wire.element.elements_ids)
+
             branch_of_wire_.main_wire = wire_
             branch_of_wire_.change_direction()
             wire_.change_direction(element_.elements_ids, branch_of_wire_.arrow_direction)

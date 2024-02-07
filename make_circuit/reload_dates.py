@@ -204,11 +204,9 @@ def reload_branches_when_creating_wire(branches, wire):
                 if main_branch.end_coord == wire_x.clamp_start.coord:
                     main_branch.own_wires.append(wire_x)
                     main_branch.own_coords.append(wire_x.clamp_end.coord)
-
                     if wire_x.clamp_end.coord == attached_branch.start_coord:
                         main_branch.own_wires += attached_branch.own_wires
                         main_branch.own_coords += attached_branch.own_coords[1:]
-
                     else:
                         main_branch.own_wires += attached_branch.own_wires[::-1]
                         main_branch.own_coords += attached_branch.own_coords[::-1][1:]
@@ -217,10 +215,9 @@ def reload_branches_when_creating_wire(branches, wire):
                     main_branch.own_wires.append(wire_x)
                     main_branch.own_coords.append(wire_x.clamp_start.coord)
 
-                    if wire_x.clamp_start == attached_branch.start_coord:
+                    if wire_x.clamp_start.coord == attached_branch.start_coord:
                         main_branch.own_wires += attached_branch.own_wires
                         main_branch.own_coords += attached_branch.own_coords[1:]
-
                     else:
                         main_branch.own_wires += attached_branch.own_wires[::-1]
                         main_branch.own_coords += attached_branch.own_coords[::-1][1:]
@@ -228,11 +225,9 @@ def reload_branches_when_creating_wire(branches, wire):
                 elif main_branch.start_coord == wire_x.clamp_start.coord:
                     main_branch.own_wires.insert(0, wire_x)
                     main_branch.own_coords.insert(0, wire_x.clamp_end.coord)
-
                     if wire_x.clamp_end.coord == attached_branch.start_coord:
                         main_branch.own_wires = attached_branch.own_wires[::-1] + main_branch.own_wires
                         main_branch.own_coords = attached_branch.own_coords[1:][::-1] + main_branch.own_coords
-
                     else:
                         main_branch.own_wires = attached_branch.own_wires + main_branch.own_wires
                         main_branch.own_coords = attached_branch.own_coords[
@@ -241,20 +236,19 @@ def reload_branches_when_creating_wire(branches, wire):
                 elif main_branch.start_coord == wire_x.clamp_end.coord:
                     main_branch.own_wires.insert(0, wire_x)
                     main_branch.own_coords.insert(0, wire_x.clamp_start.coord)
-
                     if wire_x.clamp_start.coord == attached_branch.start_coord:
                         main_branch.own_wires = attached_branch.own_wires + main_branch.own_wires
                         main_branch.own_coords = attached_branch.own_coords[
                                                  :len(attached_branch.own_coords) - 1] + main_branch.own_coords
-
                     else:
                         main_branch.own_wires = attached_branch.own_wires[::-1] + main_branch.own_wires
                         main_branch.own_coords = attached_branch.own_coords[:-1] + main_branch.own_coords
 
-                if attached_branch.main_wire.element is None:
-                    attached_branch.main_wire.delete_direction(attached_branch.main_wire.elements_ids)
-                else:
-                    attached_branch.main_wire.delete_direction(attached_branch.main_wire.element.elements_ids)
+                if attached_branch.main_wire is not None:
+                    if attached_branch.main_wire.element is None:
+                        attached_branch.main_wire.delete_direction(attached_branch.main_wire.elements_ids)
+                    else:
+                        attached_branch.main_wire.delete_direction(attached_branch.main_wire.element.elements_ids)
                 branches.remove(attached_branch)
                 attached_branch.__del__()
 
@@ -388,7 +382,7 @@ def reload_branches_when_creating_wire(branches, wire):
 
 
 def reload_branches_when_deleting_wire(branches, wire):
-    """Подпрограмма перезагружает массив ветвей, добавляя новые, удаляю исчезнувшие и обновляя необходимые при создании нового провода
+    """Подпрограмма перезагружает массив ветвей, добавляя новые, удаляя исчезнувшие и обновляя необходимые при создании нового провода
     Важно: для симметрии, тип зажима рассматривается в момент, когда провод уже удален"""
 
     def delete_branch(wire_):
@@ -407,6 +401,9 @@ def reload_branches_when_deleting_wire(branches, wire):
             branch_.own_coords.remove(wire_.clamp_start.coord)
         else:
             branch_.own_coords.remove(wire_.clamp_end.coord)
+
+        if branch_.main_wire == wire_:
+            branch_.arrow_direction = ''
 
     def recovery_branch(division_coord):
         """Подпрограмма объединяет две дочерние ветви в одну основную"""
@@ -481,6 +478,9 @@ def reload_branches_when_deleting_wire(branches, wire):
         else:
             print('Ошибка в параметрах отсейки направления подпрограммы recovery_branch: Проверь условия отсейки')
 
+        if doomed_branch.main_wire is not None:
+            doomed_branch.main_wire.delete_direction(doomed_branch.main_wire.elements_ids)
+
         branches.remove(doomed_branch)
         doomed_branch.__del__()
         first_branch.reload_parameter_of_branch_for_own_wires()
@@ -503,9 +503,11 @@ def reload_branches_when_deleting_wire(branches, wire):
             if main_branch_.main_wire is not None:
                 if main_branch_.main_wire in first_branch.own_wires:
                     first_branch.main_wire = main_branch_.main_wire
+                    first_branch.arrow_direction = first_branch.main_wire.arrow_direction
                     first_branch.current = main_branch_.current
                 elif main_branch_.main_wire in second_branch.own_wires:
                     second_branch.main_wire = main_branch_.main_wire
+                    second_branch.arrow_direction = second_branch.main_wire.arrow_direction
                     second_branch.current = main_branch_.current
                 else:
                     print(
@@ -541,8 +543,8 @@ def reload_branches_when_deleting_wire(branches, wire):
             index_wire_x = main_branch_.own_wires.index(wire_x)
 
             main_branch_.own_wires = main_branch_.own_wires[index_wire_x + 1:] + main_branch.own_wires[:index_wire_x]
-            if main_branch_.start_coord in [wire_x.clamp_start.coord,
-                                            wire_x.clamp_end.coord]:  # Рассматривается случай, когда удаляется провод с концом на начале(конце) витка
+            # Рассматривается случай, когда удаляется провод с концом на начале(конце) витка
+            if main_branch_.start_coord in [wire_x.clamp_start.coord, wire_x.clamp_end.coord]:
                 main_branch_.own_coords = main_branch_.own_coords[:-1]
             else:
                 index_start_coord, index_end_coord = define_index_start_and_end_coord_of_branch(main_branch_.own_coords,
@@ -550,6 +552,8 @@ def reload_branches_when_deleting_wire(branches, wire):
 
                 main_branch_.own_coords = main_branch_.own_coords[index_start_coord:] + main_branch_.own_coords[
                                                                                         :index_end_coord + 1]
+            if main_branch_.main_wire == wire_x:
+                main_branch_.arrow_direction = ''
 
         main_branch = wire_.branch
         if main_branch.start_coord != main_branch.end_coord:
@@ -559,7 +563,7 @@ def reload_branches_when_deleting_wire(branches, wire):
 
     type_clamp_start = define_type_clamp(wire.clamp_start)
     type_clamp_end = define_type_clamp(wire.clamp_end)
-    print(type_clamp_start, type_clamp_end)
+
     if type_clamp_start == 'empty':
         if type_clamp_end == 'empty':
             delete_branch(wire)
