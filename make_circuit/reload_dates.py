@@ -421,7 +421,7 @@ def reload_branches_when_creating_wire(branches, wire):
             print('Непредвиденная ошибка! Неопределенный зажим')
     reload_start_and_end_coord_of_all_branches(branches)
 
-    TEST = True  # Флаг, отвечающий за включение и отключение выдачи полной информации о ветвях
+    TEST = False  # Флаг, отвечающий за включение и отключение выдачи полной информации о ветвях
     if TEST:
         i = 0
         for branch in branches:
@@ -677,7 +677,7 @@ def reload_branches_when_deleting_wire(branches, wire):
             print('Непредвиденная ошибка! Неопределенный зажим')
     reload_start_and_end_coord_of_all_branches(branches)
 
-    TEST = True
+    TEST = False
     if TEST:
         i = 0
         for branch in branches:
