@@ -55,20 +55,3 @@ def output_r_c_start_clamp(clicked_clamp_):
     fout.write(str(clicked_clamp_.row) + ' ' + str(clicked_clamp_.column) + '\n')
     fout.close()
 
-
-def input_massive_clamped_clamps():
-    """Подпрограмма вводит из файла массив зажатых зажимов"""
-    from paths_for_buffer_files import path_buffer_massive_clamped_clamps
-    fin = open(path_buffer_massive_clamped_clamps, 'r')
-    mas_clamped_cls = fin.readline().split()
-    fin.close()
-    return mas_clamped_cls
-
-
-def output_massive_clamped_clamps(sort_mas_clamped_cls):
-    """Подпрограмма выводит в файл массив зажатых зажимов"""
-    from paths_for_buffer_files import path_buffer_massive_clamped_clamps
-    fout = open(path_buffer_massive_clamped_clamps, 'w')
-    for i in range(len(sort_mas_clamped_cls)):
-        fout.write(sort_mas_clamped_cls[i] + ' ')
-    fout.close()

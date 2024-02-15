@@ -114,23 +114,6 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                 canvas.itemconfig(clicked_clamp.elements_ids[0], outline=clicked_clamp.color_outline)
                 delete_acceptable_clamps()
 
-            def add_numbers_clamped_clamps(start_row, start_col, end_row, end_col):
-                """Подпрограмма записывает данные зажатых зажимов"""
-
-                from input_and_output_buffer import input_massive_clamped_clamps, output_massive_clamped_clamps
-                massive_clamped_clamps = input_massive_clamped_clamps()
-
-                start_cords_str = str(start_row) + '-' + str(start_col)
-                end_cords_str = str(end_row) + '-' + str(end_col)
-                set_clamped_clamps = set(massive_clamped_clamps)
-
-                if start_cords_str not in set_clamped_clamps:
-                    set_clamped_clamps.add(start_cords_str)
-                if end_cords_str not in set_clamped_clamps:
-                    set_clamped_clamps.add(end_cords_str)
-                sort_massive_clamped_clamps = sorted(set_clamped_clamps)
-
-                output_massive_clamped_clamps(sort_massive_clamped_clamps)
 
             def init_moving_line(clamp_start_, x_mouse, y_mouse):
                 """Подпрограмма инициализирует движущую линию"""
@@ -241,8 +224,6 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                     clamp_end.number_connected_wires += 1
                     clamp_start.number_connected_wires += 1
 
-                    add_numbers_clamped_clamps(clamp_start.row, clamp_start.column, clamp_end.row,
-                                               clamp_end.column)
                     delete_moving_line(0)  # ноль добавлен для аннулирования параметра event_click_clamp
 
                     init_wire(clamp_start, clamp_end)
@@ -268,3 +249,5 @@ RESISTORS = []
 CAPACITORS = []
 INDUCTOR_COILS = []
 binding_clamps_for_making_wires(WORKSPACE, WIRES, CLAMPS)
+
+

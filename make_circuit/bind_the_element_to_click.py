@@ -7,25 +7,6 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
         def delete_highlighted_element(event_press_delete):
             """Подпрограмма удаляет выделенный элемент"""
 
-            def reload_massive_clamped_clamps(clamp_start_x, clamp_end_x):
-                """Подпрограмма перезаписывает данные зажатых зажимов"""
-                from paths_for_buffer_files import path_buffer_massive_clamped_clamps
-
-                fin_clamped_clamps = open(path_buffer_massive_clamped_clamps, 'r')
-                massive_clamped_clamps = fin_clamped_clamps.readline().split()
-                fin_clamped_clamps.close()
-
-                fout_clamped_clamps = open(path_buffer_massive_clamped_clamps, 'w')
-                if clamp_start_x.number_connected_wires == 1:
-                    massive_clamped_clamps.remove(
-                        str(clamp_start_x.row) + '-' + str(clamp_start_x.column))
-                if clamp_end_x.number_connected_wires == 1:
-                    massive_clamped_clamps.remove(str(clamp_end_x.row) + '-' + str(clamp_end_x.column))
-                set_massive_clamped_clamps = set(massive_clamped_clamps)
-                sort_set_massive_clamped_clamps = sorted(set_massive_clamped_clamps)
-                for i in range(len(sort_set_massive_clamped_clamps)):
-                    fout_clamped_clamps.write(sort_set_massive_clamped_clamps[i] + ' ')
-                fout_clamped_clamps.close()
 
             def delete_clamps_connections(clamp_start_x, clamp_end_x):
                 """Подпрограмма удаляет связь между двумя зажимами, составляющими удаленный провод"""
@@ -53,7 +34,7 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
                 list_elements_class.remove(element)
 
                 if element.__class__.__name__ == 'Wire':
-                    reload_massive_clamped_clamps(element.clamp_start, element.clamp_end)
+
                     reload_branches_when_deleting_wire(BRANCHES, element)
                     delete_clamps_connections(element.clamp_start, element.clamp_end)
                 else:
