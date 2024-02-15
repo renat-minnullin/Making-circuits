@@ -94,69 +94,123 @@ def reload_branches_when_creating_wire(branches, wire):
         wire_.branch = branch_
         wire_.synchronizing_wire_with_branch(branch_)
 
-    def divide_branch_with_clamp(division_coord):
-        """Подпрограмма разделяет ветвь на две дочерние, одна из которых будет новой, а другая останется старой с учетом
-        приоритетности"""
+    def divide_branch_with_clamp(wire_, division_coord):
+        """Подпрограмма отрабатывает деление ветви на дочерние, принимая во внимание возможность, что изначальная ветвь
+        может быть самозамкнутой, то есть не делится при присоединении.
+            Первое ветвление на pass необходимо для явного выделения случая, когда на кольцевую цепь замыкается ветвь, которая до этого
+        не контактировала с кольцевой цепью - результатом является бездействие
+            В противном случае, выполняется разветвление на три случая:
+        1) Если изначальная ветвь не являлась кольцом - происходит разделение координат и проводов в стандартном случае
+        2) Если изначальная ветвь является кольцом и один из концов подключаемой ветви является стартовой координатой (и конечной) -
+        происходит стандартное деление
+        3) Если изначальная ветвь является кольцом и оба конца подключаемой ветви не являются стартовой (конечной) координатой -
+        с first_branch происходит стандартное деление, а для second_branch складываются участки от additional_coord до конца кольцевой
+        и от начала кольцевой до main_coord."""
 
-        def search_for_old_branch(coord):
+        def search_for_old_branch(wire_x, coord):
             """Подпрограмма ищет ветвь, которая будет разделяться на дочерние ветви по данному зажиму"""
             num_brch = 0
             old_branch_ = None
             flag_branch_found = False
             while not flag_branch_found:
-                if coord in branches[num_brch].own_coords:
+                if coord in branches[num_brch].own_coords and wire_x not in branches[num_brch].own_wires:
                     flag_branch_found = True
                     old_branch_ = branches[num_brch]
                 else:
                     num_brch += 1
             return old_branch_
 
-        def define_priority_child_branch(old_branch_, own_wires, own_coords):
+        def find_second_common_coord(attached_branch_, div_coord):
+            if div_coord == attached_branch_.start_coord:
+                return attached_branch_.end_coord
+            else:
+                return attached_branch_.start_coord
+
+        def define_priority_child_branch(old_brch, own_wires, own_coords):
             """Подпрограмма определяет приоритет дочерней ветви"""
-            if old_branch_.start_coord in own_coords:
+            if old_brch.start_coord in own_coords:
                 priority = 1
             else:
                 priority = 0
 
-            if old_branch_.main_wire in own_wires:
+            if old_brch.main_wire in own_wires:
                 priority += 2
             return priority
 
-        old_branch = search_for_old_branch(division_coord)
-        index_division_coord = old_branch.own_coords.index(division_coord)
+        def define_main_and_additional_coord(old_brch, div_coord, sec_common_coord):
+            """Подпрограмма определяет, какой из концов ветви, делящей кольцевую, находится в списке own_coords кольцевой ветви
+            old_branch первее"""
+            index_division_coord = old_brch.own_coords.index(div_coord)
+            index_second_common_coord = old_brch.own_coords.index(sec_common_coord)
+            if index_division_coord < index_second_common_coord:
+                return index_division_coord, index_second_common_coord
+            else:
+                return index_second_common_coord, index_division_coord
 
-        own_wires_first_branch = old_branch.own_wires[:index_division_coord]
-        own_coords_first_branch = old_branch.own_coords[:index_division_coord + 1]
-        priority_first_branch = define_priority_child_branch(old_branch, own_wires_first_branch,
-                                                             own_coords_first_branch)
-
-        own_wires_second_branch = old_branch.own_wires[index_division_coord:]
-        own_coords_second_branch = old_branch.own_coords[index_division_coord:]
-        priority_second_branch = define_priority_child_branch(old_branch, own_wires_second_branch,
-                                                              own_coords_second_branch)
-
-        if priority_first_branch > priority_second_branch:
-            first_branch = old_branch
-            first_branch.own_wires = own_wires_first_branch
-            first_branch.own_coords = own_coords_first_branch
-
-            second_branch = Branch(own_coords_second_branch[0], own_coords_second_branch[-1])
-            branches.append(second_branch)
-            second_branch.own_wires = own_wires_second_branch
-            second_branch.own_coords = own_coords_second_branch
-
+        old_branch = search_for_old_branch(wire_, division_coord)
+        attached_branch = wire_.branch
+        second_probable_common_coord = find_second_common_coord(attached_branch, division_coord)
+        if old_branch.start_coord == old_branch.end_coord and second_probable_common_coord not in old_branch.own_coords:
+            pass  # При замыкании на кольцевую линию ветви только с одной ее стороны, не создаются ветви
         else:
-            first_branch = Branch(own_coords_first_branch[0], own_coords_first_branch[-1])
-            branches.append(first_branch)
-            first_branch.own_wires = own_wires_first_branch
-            first_branch.own_coords = own_coords_first_branch
+            own_wires_first_branch = []
+            own_coords_first_branch = []
+            own_wires_second_branch = []
+            own_coords_second_branch = []
 
-            second_branch = old_branch
-            second_branch.own_wires = own_wires_second_branch
-            second_branch.own_coords = own_coords_second_branch
+            if old_branch.start_coord != old_branch.end_coord:
+                index_division_coord = old_branch.own_coords.index(division_coord)
 
-        first_branch.reload_parameter_of_branch_for_own_wires()
-        second_branch.reload_parameter_of_branch_for_own_wires()
+                own_wires_first_branch = old_branch.own_wires[:index_division_coord]
+                own_coords_first_branch = old_branch.own_coords[:index_division_coord + 1]
+                own_wires_second_branch = old_branch.own_wires[index_division_coord:]
+                own_coords_second_branch = old_branch.own_coords[index_division_coord:]
+
+            elif second_probable_common_coord in old_branch.own_coords:
+                second_common_coord = second_probable_common_coord
+                index_main_coord, index_additional_coord = define_main_and_additional_coord(old_branch, division_coord,
+                                                                                            second_common_coord)
+                if index_main_coord == 0:
+                    own_wires_first_branch = old_branch.own_wires[:index_additional_coord]
+                    own_coords_first_branch = old_branch.own_coords[:index_additional_coord + 1]
+                    own_wires_second_branch = old_branch.own_wires[index_additional_coord:]
+                    own_coords_second_branch = old_branch.own_coords[index_additional_coord:]
+                else:
+                    own_wires_first_branch = old_branch.own_wires[:index_additional_coord]
+                    own_coords_first_branch = old_branch.own_coords[:index_additional_coord + 1]
+                    own_wires_second_branch = old_branch.own_wires[index_additional_coord:] + old_branch.own_wires[:index_main_coord]
+                    own_coords_second_branch = old_branch.own_coords[index_additional_coord:] + old_branch.own_coords[1:index_main_coord + 1]
+            else:
+                print("Непредвиденная ошибка! Не прошли условия отсейки в divide_branch_with_clamp")
+
+            priority_first_branch = define_priority_child_branch(old_branch, own_wires_first_branch,
+                                                                 own_coords_first_branch)
+
+            priority_second_branch = define_priority_child_branch(old_branch, own_wires_second_branch,
+                                                                  own_coords_second_branch)
+
+            if priority_first_branch > priority_second_branch:
+                first_branch = old_branch
+                first_branch.own_wires = own_wires_first_branch
+                first_branch.own_coords = own_coords_first_branch
+
+                second_branch = Branch(own_coords_second_branch[0], own_coords_second_branch[-1])
+                branches.append(second_branch)
+                second_branch.own_wires = own_wires_second_branch
+                second_branch.own_coords = own_coords_second_branch
+
+            else:
+                first_branch = Branch(own_coords_first_branch[0], own_coords_first_branch[-1])
+                branches.append(first_branch)
+                first_branch.own_wires = own_wires_first_branch
+                first_branch.own_coords = own_coords_first_branch
+
+                second_branch = old_branch
+                second_branch.own_wires = own_wires_second_branch
+                second_branch.own_coords = own_coords_second_branch
+
+            first_branch.reload_parameter_of_branch_for_own_wires()
+            second_branch.reload_parameter_of_branch_for_own_wires()
 
     def merging_branches(wire_):
         """Подпрограмма объединяет две отдельные ветви, которые соединяются новым проводом в одну ветвь"""
@@ -317,7 +371,7 @@ def reload_branches_when_creating_wire(branches, wire):
             lengthening_branch(wire)
         elif type_clamp_end == 'connection':
             create_branch(wire)
-            divide_branch_with_clamp(wire.clamp_end.coord)
+            divide_branch_with_clamp(wire, wire.clamp_end.coord)
         elif type_clamp_end == 'node':
             create_branch(wire)
         else:
@@ -330,7 +384,7 @@ def reload_branches_when_creating_wire(branches, wire):
             merging_branches(wire)
         elif type_clamp_end == 'connection':
             lengthening_branch(wire)
-            divide_branch_with_clamp(wire.clamp_end.coord)
+            divide_branch_with_clamp(wire, wire.clamp_end.coord)
         elif type_clamp_end == 'node':
             lengthening_branch(wire)
         else:
@@ -339,17 +393,17 @@ def reload_branches_when_creating_wire(branches, wire):
     elif type_clamp_start == 'connection':
         if type_clamp_end == 'empty':
             create_branch(wire)
-            divide_branch_with_clamp(wire.clamp_start.coord)
+            divide_branch_with_clamp(wire, wire.clamp_start.coord)
         elif type_clamp_end == 'unconnected_end':
             lengthening_branch(wire)
-            divide_branch_with_clamp(wire.clamp_start.coord)
+            divide_branch_with_clamp(wire, wire.clamp_start.coord)
         elif type_clamp_end == 'connection':
             create_branch(wire)
-            divide_branch_with_clamp(wire.clamp_start.coord)
-            divide_branch_with_clamp(wire.clamp_end.coord)
+            divide_branch_with_clamp(wire, wire.clamp_start.coord)
+            divide_branch_with_clamp(wire, wire.clamp_end.coord)
         elif type_clamp_end == 'node':
             create_branch(wire)
-            divide_branch_with_clamp(wire.clamp_start.coord)
+            divide_branch_with_clamp(wire, wire.clamp_start.coord)
         else:
             print('Непредвиденная ошибка! Неопределенный зажим')
 
@@ -360,7 +414,7 @@ def reload_branches_when_creating_wire(branches, wire):
             lengthening_branch(wire)
         elif type_clamp_end == 'connection':
             create_branch(wire)
-            divide_branch_with_clamp(wire.clamp_end.coord)
+            divide_branch_with_clamp(wire, wire.clamp_end.coord)
         elif type_clamp_end == 'node':
             create_branch(wire)
         else:
@@ -512,6 +566,7 @@ def reload_branches_when_deleting_wire(branches, wire):
                 else:
                     print(
                         'Непредвиденная ошибка! В подпрограмме divide_branch_with_wire направляющий провод не найден в дочерних ветвях')
+
             branches.remove(main_branch_)
             main_branch_.__del__()
             branches.append(first_branch)
@@ -622,7 +677,7 @@ def reload_branches_when_deleting_wire(branches, wire):
             print('Непредвиденная ошибка! Неопределенный зажим')
     reload_start_and_end_coord_of_all_branches(branches)
 
-    TEST = False
+    TEST = True
     if TEST:
         i = 0
         for branch in branches:
