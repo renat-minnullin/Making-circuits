@@ -28,8 +28,8 @@ def bind_element_button(Class_this_element, list_elements_of_the_this_class, dra
         canvas = hl_wire_.canvas
         canvas.itemconfig(hl_wire_.elements_ids[0], state='hidden')
 
-    def bind_one_btn(hl_wire, Class_element, list_elements_of_the_class):
-        """Подпрограмма запускает бинд одной кнопки в библиотеке элементов"""
+    def create_element_on_wire(hl_wire, Class_element, list_elements_of_the_class):
+        """Подпрограмма создает элемент на выделенном проводе"""
         from bind_the_element_to_click import bind_element_to_click
         from make_display import FRAME_INFO_ABOUT_ELEMENT
         from options_visualization import COLOR_FULL_ID, FONT_FULL_ID
@@ -41,6 +41,10 @@ def bind_element_button(Class_this_element, list_elements_of_the_this_class, dra
                                              hl_wire.color_lines, hl_wire, str(len(list_elements_of_the_class) + 1),
                                              COLOR_FULL_ID, FONT_FULL_ID)
         element_of_the_class.draw()
+
+        if hl_wire.arrow_direction != '':
+            hl_wire.change_direction(element_of_the_class.elements_ids, hl_wire.arrow_direction)
+
         list_elements_of_the_class.append(element_of_the_class)
         hl_wire.element = element_of_the_class
 
@@ -56,7 +60,7 @@ def bind_element_button(Class_this_element, list_elements_of_the_this_class, dra
         highlighted_wire = element_highlighted[0]
         if highlighted_wire.canvas.itemcget(highlighted_wire.elements_ids[0], 'state') == 'normal':
             hide_highlighted_wire(highlighted_wire)
-            bind_one_btn(highlighted_wire, Class_this_element, list_elements_of_the_this_class)
+            create_element_on_wire(highlighted_wire, Class_this_element, list_elements_of_the_this_class)
 
     elif area_quick_access_highlighted[0]:
         area = area_quick_access_highlighted[0]
@@ -113,7 +117,6 @@ def binding_clamps_for_making_wires(canvas, wires, clamps):
                 moving_wire_line = None
                 canvas.itemconfig(clicked_clamp.elements_ids[0], outline=clicked_clamp.color_outline)
                 delete_acceptable_clamps()
-
 
             def init_moving_line(clamp_start_, x_mouse, y_mouse):
                 """Подпрограмма инициализирует движущую линию"""
@@ -249,5 +252,3 @@ RESISTORS = []
 CAPACITORS = []
 INDUCTOR_COILS = []
 binding_clamps_for_making_wires(WORKSPACE, WIRES, CLAMPS)
-
-

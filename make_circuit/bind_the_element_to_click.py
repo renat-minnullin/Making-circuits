@@ -7,7 +7,6 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
         def delete_highlighted_element(event_press_delete):
             """Подпрограмма удаляет выделенный элемент"""
 
-
             def delete_clamps_connections(clamp_start_x, clamp_end_x):
                 """Подпрограмма удаляет связь между двумя зажимами, составляющими удаленный провод"""
 
@@ -66,6 +65,7 @@ def bind_element_to_click(element_of_class, list_elements_of_class):
             element_highlighted[0] = element
             root.bind('<Delete>', delete_highlighted_element)
             print(element)
+
     def click_double_left_btn_mouse_on_element(element):
         """Подпрограмма отрабатывает двойное нажатие левой кнопкой мыши по элементу, благодаря которому на элементе либо
         появляется направление графа, в случае, если такого направления не было, либо меняется на противоположное, если
