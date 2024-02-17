@@ -21,10 +21,18 @@ class Branch:
                 'Непредвиденная ошибка! Попытка изменить направление ветви, когда это направление не было задано изначально')
 
     def reload_parameter_of_branch_for_own_wires(self):
-        """Метод меняет параметр branch для каждого провода, входящего в own_wires на данную ветвь"""
+        """Метод меняет параметр branch для каждого провода, входящего в own_wires на данную ветвь, а также для каждого прикрепленного к проводам элемента"""
         for wire in self.own_wires:
             wire.branch = self
-
+            if wire.element is not None:
+                wire.branch = self
+    def universal_changes_current(self, current):
+        """Метод активируется при изменении тока на любой составляющей ветви, включая все провода и подключенные к ним элементы"""
+        self.current = current
+        for wire in self.own_wires:
+            wire.parameters[0] = current
+            if wire.element is not None:
+                wire.element.parameters[0] = current
     def __del__(self):
         del self
 
@@ -566,7 +574,8 @@ def reload_branches_when_deleting_wire(branches, wire):
                 else:
                     print(
                         'Непредвиденная ошибка! В подпрограмме divide_branch_with_wire направляющий провод не найден в дочерних ветвях')
-
+            first_branch.reload_parameter_of_branch_for_own_wires()
+            second_branch.reload_parameter_of_branch_for_own_wires()
             branches.remove(main_branch_)
             main_branch_.__del__()
             branches.append(first_branch)

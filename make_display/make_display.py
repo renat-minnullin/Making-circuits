@@ -118,24 +118,63 @@ class FrameInfoElement(tk.LabelFrame):
                 from math import radians
                 return rect(float(module_), radians(float(angle_)))
 
-            if flag_all_directional_parameters_is_null_or_disabled():
-                self.highlighted_element.delete_direction()
+            def flag_is_the_number(string):
+                """Подпрограмма проверяет, является ли введенная строка числом"""
+                valid_symbols = '1234567890.'
+                flag = True
+                num = 0
+                if string[0] == '.':
+                    flag = False
 
+                while flag and num < len(string):
+                    if string[num] not in valid_symbols:
+                        flag = False
+                    else:
+                        num += 1
+                if string == 'Inf':
+                    flag = True
+
+                return flag
+
+
+            # СТОП МЫСЛИ: ПОПРОБУЙ ВНЕДРИТЬ НА МЕСТО if module == '-' or angle == '-':
+
+            if flag_all_directional_parameters_is_null_or_disabled():
+                self.highlighted_element.delete_direction(self.highlighted_element.elements_ids)
+            flag_one_parameter_not_saved = False
             for num in range(self.count_parameters):
                 module = self.entries_modules[num].get()
                 angle = self.entry_angles[num].get()
 
-                if module == '-' or angle == '-':
-                    self.highlighted_element.parameters[num] = '-'
-                    if num == 0:
-                        self.highlighted_element.branch.current = '-'
-                else:
+                if flag_is_the_number(module) and flag_is_the_number(angle):
                     arithmetic_form = conversion_to_arithmetic_form(module, angle)
                     self.highlighted_element.parameters[num] = arithmetic_form
                     if num == 0:
-                        self.highlighted_element.branch.current = arithmetic_form
+                        if self.highlighted_element.__class__.__name__ == 'Wire':
+                            self.highlighted_element
+                            self.highlighted_element.branch.current = arithmetic_form
+                        else:
+                            self.highlighted_element.own_wire.branch.current = arithmetic_form
+
                     if flag_user_changed_directional_parameter(num):
-                        self.highlighted_element.create_direction()
+                        self.highlighted_element.create_direction(self.highlighted_element.elements_ids)
+                else:
+                    self.highlighted_element.parameters[num] = '-'
+                    if num == 0:
+                        if self.highlighted_element.__class__.__name__ == 'Wire':
+                            self.highlighted_element.branch.current = '-'
+                        else:
+                            self.highlighted_element.own_wire.branch.current = '-'
+
+                    flag_one_parameter_not_saved = True
+
+            if flag_one_parameter_not_saved:
+                print('В одном из введенных параметров недопустимый символ!')
+            else:
+                print('Данные успешно сохранены')
+
+
+
 
         self.name_element = '----'
         self.highlighted_element = None

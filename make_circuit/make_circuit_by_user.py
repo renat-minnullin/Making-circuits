@@ -44,13 +44,10 @@ def bind_element_button(Class_this_element, list_elements_of_the_this_class, dra
 
         if hl_wire.arrow_direction != '':
             hl_wire.change_direction(element_of_the_class.elements_ids, hl_wire.arrow_direction)
-
+        element_of_the_class.parameters[0] = hl_wire.parameters[0]
+        element_of_the_class.branch = hl_wire.branch
         list_elements_of_the_class.append(element_of_the_class)
         hl_wire.element = element_of_the_class
-
-        frame_info = FRAME_INFO_ABOUT_ELEMENT
-        frame_info.transition_to_standard_state()
-
         bind_element_to_click(element_of_the_class, list_elements_of_the_class)
 
     from make_display import root

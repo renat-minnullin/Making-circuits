@@ -214,7 +214,7 @@ def draw_resistor(canvas, coord_start, coord_end, normal_length, width_line, col
     elements_ids.append(
         canvas.create_line(x_start, y_start, x_end, y_end, width=width_line, fill=col_lines,
                            tag=['line', 'end_contact']))
-    print(elements_ids[-1])
+
     # Нижняя половина вторичной стенки резистора
     dx = width / 2 * cos(angle - pi / 2)
     dy = width / 2 * sin(angle - pi / 2)
