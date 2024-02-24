@@ -21,30 +21,36 @@ def working_circuit(btn_run_circuit, clamps):
             """Подпрограмма необходима, для анализа созданной цепи: проверяются элементы на разных уровнях от зажатого зажима
             до ветви и выдается ошибка в случае несоответствия"""
 
-            def analise_clamped_clamps(massive_row_col_clamped_clamps):
-                """Подпрограмма анализирует созданный в ходе рисования массив зажатых зажимов на возможные ошибки"""
+            def create_massive_clamped_clamps(branches, clamps):
+                """Подпрограмма на основе ветвей и массива всех зажимов создает массив зажатых зажимов"""
+                clamped_clamps_ = []
+                for branch in branches:
+                    for coord in branch.own_coords:
+                        clamped_clamps_.append(clamps[coord[0]][coord[1]])
+                return clamped_clamps_
+
+            def analise_clamped_clamps(clamped_clamps_):
+                """Подпрограмма анализирует массив зажатых зажимов на возможные ошибки"""
                 fl_err = False
                 txt_err = 'Not error'
 
-                if len(massive_row_col_clamped_clamps) == 0:
+                if len(clamped_clamps_) == 0:
                     fl_err = True
                     txt_err = 'Ошибка! Не зажато ни одного зажима'
-                elif len(massive_row_col_clamped_clamps) == 1:
+                elif len(clamped_clamps_) == 1:
                     fl_err = True
                     txt_err = 'Ошибка! Зажат только один зажим'
                 else:
                     i = 0
-                    while fl_err is False and i < len(massive_row_col_clamped_clamps):
-                        row = massive_row_col_clamped_clamps[i][0]
-                        col = massive_row_col_clamped_clamps[i][1]
-                        if clamps[row][col].number_connected_wires == 0:
+                    while fl_err is False and i < len(clamped_clamps_):
+                        if clamped_clamps_[i].number_connected_wires == 0:
                             fl_err = True
                             txt_err = 'Непредвиденная ошибка! Число присоединенных проводов к одному из зажимов равно нулю'
 
-                        elif clamps[row][col].number_connected_wires == 1:
+                        elif clamped_clamps_[i].number_connected_wires == 1:
                             fl_err = True
                             txt_err = 'Ошибка! Цепь не замкнута. Число присоединенных проводов к одному из зажимов равно единице'
-                        elif clamps[row][col].number_connected_wires >= 9:
+                        elif clamped_clamps_[i].number_connected_wires >= 9:
                             fl_err = True
                             txt_err = 'Непредвиденная ошибка! Число присоединенных проводов к одному из зажимов больше либо ' \
                                       'равно девяти (максимальное возможное число - восемь)'
@@ -53,20 +59,45 @@ def working_circuit(btn_run_circuit, clamps):
 
                 return fl_err, txt_err
 
-            def analise_nodes(massive_row_col_nodes):
+            def create_massive_nodes(branches, clamps):
+                """Подпрограмма создает массив узлов по данным уже созданных ветвей"""
+                nodes_ = []
+                for branch in branches:
+                    start_clamp = clamps[branch.start_coord[0]][branch.start_coord[1]]
+                    end_clamp = clamps[branch.end_coord[0]][branch.end_coord[1]]
+                    for clamp in [start_clamp, end_clamp]:
+                        if clamp not in nodes_ and clamp.number_connected_wires >= 3:
+                            nodes_.append(branch.clamp)
+                return nodes_
+
+            def analise_nodes(branches, nodes_):
                 """Подпрограмма анализирует массив узлов на возможные ошибки"""
                 fl_err = False
                 txt_err = 'Not error'
                 i = 0
-                while fl_err is False and i < len(massive_row_col_nodes):
-                    row = massive_row_col_nodes[i][0]
-                    col = massive_row_col_nodes[i][1]
-                    if clamps[row][col].number_connected_wires <= 2:
+                while fl_err is False and i < len(nodes_):
+                    if nodes_[i].number_connected_wires <= 2:
                         fl_err = True
                         txt_err = 'Непредвиденная ошибка! Один из узлов не является узлом. Число присоединенных проводов ' \
                                   'меньше или равно двум'
                     else:
                         i += 1
+
+                if fl_err == False:
+                    massive_number_node_uses = [0] * len(nodes_)
+                    for branch in branches:
+                        start_clamp = clamps[branch.start_coord[0]][branch.start_coord[1]]
+                        end_clamp = clamps[branch.end_coord[0]][branch.end_coord[1]]
+                        for clamp in [start_clamp, end_clamp]:
+                            massive_number_node_uses[nodes_.index(clamp)] += 1
+                    i = 0
+                    while fl_err is False and i < len(massive_number_node_uses):
+                        if massive_number_node_uses[i] <= 2:
+                            fl_err = True
+                            txt_err = 'Непредвиденная ошибка! Один из узлов рассинхронизировался с ветвями и встречается' \
+                                      'меньше 3 раз в массиве ветвей'
+                        else:
+                            i += 1
 
                 return fl_err, txt_err
 
@@ -139,11 +170,15 @@ def working_circuit(btn_run_circuit, clamps):
                 return fl_err, txt_err
 
             # --------------RUN------------------
+            from make_circuit_by_user import BRANCHES
+            from make_display import CLAMPS
 
-            fl_error, txt_error = analise_clamped_clamps(massive_row_column_clamped_clamps)
+            clamped_clamps = create_massive_clamped_clamps(BRANCHES, CLAMPS)
+            fl_error, txt_error = analise_clamped_clamps(clamped_clamps)
             if not fl_error:
                 print('Зажимы определены')
-                fl_error, txt_error = analise_nodes(massive_row_column_nodes)
+                nodes = create_massive_nodes(BRANCHES, CLAMPS)
+                fl_error, txt_error = analise_nodes(BRANCHES, nodes)
                 if not fl_error:
                     print('Узлы определены')
                     fl_error, txt_error = analise_massive_row_col_branches(massive_row_column_in_branches,

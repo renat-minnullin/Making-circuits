@@ -83,15 +83,7 @@ class Wire(Element):
         поступает список индексов линий прикрепленного элемента (либо самого провода, если такого элемента нет)"""
         self.arrow_direction = delete_direction_arrow(self.canvas, out_elements_ids)
 
-    def synchronizing_wire_with_branch(self, brch):
-        """Метод меняет местами начальную и конечную координату зажимов провода так, чтобы они были в списке зажимов ветви
-        в установленном в ней порядке - от начала ветви к концу ветви."""
-        if brch.own_coords.index(self.clamp_start.coord) > brch.own_coords.index(self.clamp_end.coord):
-            self.clamp_start, self.clamp_end = self.clamp_end, self.clamp_start
-            self.coord_start, self.coord_end = self.coord_end, self.coord_start
-            self.x_start, self.x_end = self.x_end, self.x_start
-            self.y_start, self.y_end = self.y_end, self.y_start
-            self.canvas.coords(self.elements_ids[0], self.x_start, self.y_start, self.x_end, self.y_end)
+
 
 
 class Connection(Element):
